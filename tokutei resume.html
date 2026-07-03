@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>特定技能外国人の履歴書</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background:#f0f4f8; min-height:100vh; }
+
+#lang-screen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 20px; background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 100%); }
+#lang-screen h1 { color:#fff; font-size:20px; font-weight:700; letter-spacing:.1em; margin-bottom:6px; text-align:center; }
+#lang-screen p { color:rgba(255,255,255,.7); font-size:13px; margin-bottom:36px; text-align:center; }
+.lang-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:460px; }
+.lang-btn { background:#fff; border:none; border-radius:12px; padding:22px 14px; cursor:pointer; text-align:center; transition:transform .15s; box-shadow:0 4px 14px rgba(0,0,0,.15); }
+.lang-btn:active { transform:scale(.97); }
+.lang-btn .flag { font-size:30px; display:block; margin-bottom:6px; }
+.lang-btn .ln { font-size:13px; font-weight:700; color:#1a3a5c; display:block; }
+.lang-btn .ls { font-size:11px; color:#888; display:block; margin-top:2px; }
+
+#form-screen { display:none; padding:16px; max-width:860px; margin:0 auto; }
+.fhdr { background:#1a3a5c; color:#fff; padding:16px 20px; border-radius:12px 12px 0 0; display:flex; align-items:center; justify-content:space-between; }
+.fhdr h2 { font-size:15px; }
+.back-btn { background:rgba(255,255,255,.2); color:#fff; border:none; border-radius:7px; padding:7px 12px; font-size:12px; cursor:pointer; }
+.fbody { background:#fff; border-radius:0 0 12px 12px; padding:22px; box-shadow:0 4px 18px rgba(0,0,0,.1); }
+.sec { font-size:13px; font-weight:700; color:#1a3a5c; border-left:4px solid #2d6a9f; padding-left:8px; margin:24px 0 12px; }
+.fg { display:grid; gap:11px; }
+.c2 { grid-template-columns:1fr 1fr; }
+.c3 { grid-template-columns:1fr 1fr 1fr; }
+.field label { display:block; font-size:11px; font-weight:600; color:#555; margin-bottom:3px; }
+.field input,.field select,.field textarea { width:100%; border:1.5px solid #d0dbe8; border-radius:7px; padding:9px 10px; font-size:15px; font-family:'Noto Sans JP',sans-serif; color:#111; background:#f8fafc; }
+.field input:focus,.field select:focus { outline:none; border-color:#2d6a9f; background:#fff; }
+.field textarea { resize:vertical; min-height:60px; }
+.photo-wrap { width:110px; height:140px; border:2px dashed #2d6a9f; border-radius:8px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; background:#f0f6ff; overflow:hidden; flex-shrink:0; }
+.photo-wrap img { width:100%; height:100%; object-fit:cover; }
+.photo-hint { font-size:11px; color:#2d6a9f; text-align:center; padding:8px; white-space:pre-line; line-height:1.6; }
+#photo-input { display:none; }
+.rg { display:flex; gap:12px; flex-wrap:wrap; padding:3px 0; }
+.rg label { display:flex; align-items:center; gap:5px; font-size:14px; cursor:pointer; color:#333; }
+.rg input[type=radio] { width:14px; height:14px; accent-color:#2d6a9f; }
+.dyn-rows { display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
+.drow { display:grid; gap:6px; align-items:end; background:#f8fafc; padding:8px; border-radius:8px; border:1px solid #e0eaf4; }
+.career-drow { grid-template-columns:70px 42px 70px 42px 1fr 1fr 26px; }
+.family-drow { grid-template-columns:80px 1fr 80px 1fr 26px; }
+.drow input { border:1.5px solid #d0dbe8; border-radius:6px; padding:7px; font-size:13px; background:#fff; width:100%; font-family:'Noto Sans JP',sans-serif; }
+.drow label { font-size:10px; color:#777; display:block; margin-bottom:2px; }
+.add-btn { background:#e8f0fb; color:#2d6a9f; border:1.5px dashed #2d6a9f; border-radius:7px; padding:9px; width:100%; cursor:pointer; font-size:12px; font-weight:600; }
+.del-btn { background:#fee; color:#c00; border:none; border-radius:5px; width:24px; height:24px; cursor:pointer; font-size:14px; align-self:end; }
+.sub-area { margin-top:24px; display:flex; gap:10px; flex-wrap:wrap; }
+.btn-main { flex:1; min-width:200px; background:#1a3a5c; color:#fff; border:none; border-radius:9px; padding:16px; font-size:14px; font-weight:700; cursor:pointer; font-family:'Noto Sans JP',sans-serif; line-height:1.4; }
+.btn-main:active { background:#2d6a9f; }
+.btn-sub { background:#e8f0fb; color:#1a3a5c; border:none; border-radius:9px; padding:14px 18px; font-size:13px; font-weight:700; cursor:pointer; font-family:'Noto Sans JP',sans-serif; }
+
+#overlay { display:none; position:fixed; inset:0; background:rgba(20,40,70,.85); z-index:9999; flex-direction:column; align-items:center; justify-content:center; color:#fff; gap:18px; text-align:center; padding:30px; }
+#overlay.show { display:flex; }
+.spinner { width:46px; height:46px; border:4px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+#overlay-msg { font-size:16px; font-family:'Noto Sans JP',sans-serif; line-height:1.6; }
+
+/* PDF保存案内モーダル */
+#pdf-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9998; align-items:center; justify-content:center; padding:20px; }
+#pdf-modal.show { display:flex; }
+.modal-box { background:#fff; border-radius:16px; padding:28px 24px; max-width:400px; width:100%; text-align:center; }
+.modal-box h3 { font-size:17px; color:#1a3a5c; margin-bottom:12px; }
+.modal-box p { font-size:13px; color:#555; line-height:1.7; margin-bottom:20px; }
+.modal-steps { background:#f0f6ff; border-radius:10px; padding:16px; margin-bottom:20px; text-align:left; }
+.modal-steps li { font-size:13px; color:#333; margin-bottom:8px; padding-left:4px; }
+.modal-steps li:last-child { margin-bottom:0; }
+.modal-btn { width:100%; background:#1a3a5c; color:#fff; border:none; border-radius:9px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; font-family:'Noto Sans JP',sans-serif; margin-bottom:10px; }
+.modal-close { background:none; border:none; color:#888; font-size:13px; cursor:pointer; font-family:'Noto Sans JP',sans-serif; }
+
+@media(max-width:600px){
+  .c2,.c3{grid-template-columns:1fr;}
+  .career-drow{grid-template-columns:1fr 1fr;}
+  .family-drow{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="overlay"><div class="spinner"></div><div id="overlay-msg">AIが翻訳中です...</div></div>
+
+<!-- PDF保存案内モーダル -->
+<div id="pdf-modal">
+  <div class="modal-box">
+    <h3>📄 PDF保存の方法</h3>
+    <p id="modal-desc">履歴書の準備ができました。<br>次の手順でPDFに保存してください。</p>
+    <div class="modal-steps">
+      <ol id="modal-steps-list">
+        <li>「PDFを開く」ボタンを押す</li>
+        <li>画面右上の「共有」ボタンをタップ</li>
+        <li>「ファイルに保存」または「PDFに保存」を選択</li>
+      </ol>
+    </div>
+    <button class="modal-btn" id="modal-open-btn" onclick="openPdfWindow()">📄 PDFを開く</button>
+    <button class="modal-close" onclick="document.getElementById('pdf-modal').classList.remove('show')">閉じる</button>
+  </div>
+</div>
+
+<!-- 言語選択 -->
+<div id="lang-screen">
+  <h1>特定技能外国人の履歴書</h1>
+  <p>言語を選択 / Pilih Bahasa / Chọn ngôn ngữ</p>
+  <div class="lang-grid">
+    <button class="lang-btn" onclick="selectLang('ja')"><span class="flag">🇯🇵</span><span class="ln">日本語</span><span class="ls">Japanese</span></button>
+    <button class="lang-btn" onclick="selectLang('id')"><span class="flag">🇮🇩</span><span class="ln">Bahasa Indonesia</span><span class="ls">Indonesian</span></button>
+    <button class="lang-btn" onclick="selectLang('vi')"><span class="flag">🇻🇳</span><span class="ln">Tiếng Việt</span><span class="ls">Vietnamese</span></button>
+    <button class="lang-btn" onclick="selectLang('km')"><span class="flag">🇰🇭</span><span class="ln">ភាសាខ្មែរ</span><span class="ls">Khmer</span></button>
+    <button class="lang-btn" onclick="selectLang('tl')"><span class="flag">🇵🇭</span><span class="ln">Filipino</span><span class="ls">Tagalog</span></button>
+    <button class="lang-btn" onclick="selectLang('en')"><span class="flag">🌐</span><span class="ln">English</span><span class="ls">英語</span></button>
+  </div>
+</div>
+
+<!-- 入力フォーム -->
+<div id="form-screen">
+  <div style="max-width:860px;margin:20px auto;">
+    <div class="fhdr">
+      <h2 id="ft">特定技能外国人の履歴書</h2>
+      <button class="back-btn" onclick="goBack()">← <span id="lb-back">戻る</span></button>
+    </div>
+    <div class="fbody">
+      <div class="sec" id="lb-s1">① 基本情報</div>
+      <div style="display:flex;gap:18px;align-items:flex-start;">
+        <div>
+          <label style="font-size:11px;color:#555;display:block;margin-bottom:4px;" id="lb-photo">顔写真</label>
+          <div class="photo-wrap" onclick="document.getElementById('photo-input').click()">
+            <img id="photo-prev" src="" style="display:none">
+            <div class="photo-hint" id="photo-hint">📷
+タップして
+写真を追加</div>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" onchange="prevPhoto(event)">
+        </div>
+        <div style="flex:1">
+          <div class="fg c2" style="margin-bottom:10px;">
+            <div class="field"><label id="lb-kana">フリガナ（ローマ字）</label><input type="text" id="f-kana" placeholder="DO VAN VINH"></div>
+            <div class="field"><label id="lb-gender">② 性別</label>
+              <div class="rg"><label><input type="radio" name="gender" value="男性"><span id="lb-male">男性</span></label><label><input type="radio" name="gender" value="女性"><span id="lb-female">女性</span></label></div>
+            </div>
+          </div>
+          <div class="fg c2">
+            <div class="field"><label id="lb-name">① 氏名（英字）</label><input type="text" id="f-name" placeholder="DO VAN VINH"></div>
+            <div class="field"><label id="lb-dob">③ 生年月日</label><input type="date" id="f-dob"></div>
+          </div>
+        </div>
+      </div>
+      <div class="fg c3" style="margin-top:13px;">
+        <div class="field"><label id="lb-nat">④ 国籍・地域</label><input type="text" id="f-nat"></div>
+        <div class="field"><label id="lb-lang">⑤ 理解できる言語</label><input type="text" id="f-lang"></div>
+        <div class="field"><label id="lb-spouse">⑥ 配偶者</label>
+          <div class="rg"><label><input type="radio" name="spouse" value="有"><span id="lb-yes">有</span></label><label><input type="radio" name="spouse" value="無"><span id="lb-no">無</span></label></div>
+        </div>
+      </div>
+      <div class="fg c2" style="margin-top:12px;">
+        <div class="field"><label id="lb-jtype">⑦ 実習の職種</label><input type="text" id="f-jtype"></div>
+        <div class="field"><label id="lb-jwork">⑧ 実習の作業名</label><input type="text" id="f-jwork"></div>
+      </div>
+      <div class="fg c2" style="margin-top:12px;">
+        <div class="field"><label id="lb-tend">実習修了日</label><input type="date" id="f-tend"></div>
+        <div class="field"><label id="lb-vexp">ビザの期限</label><input type="date" id="f-vexp"></div>
+      </div>
+      <div class="fg c2" style="margin-top:12px;">
+        <div class="field"><label id="lb-status">現在の在留資格</label><input type="text" id="f-status"></div>
+        <div class="field"><label id="lb-adjp">日本での住居地</label><input type="text" id="f-adjp"></div>
+      </div>
+      <div class="field" style="margin-top:12px;"><label id="lb-adhm">本国の住居地</label><input type="text" id="f-adhm"></div>
+
+      <div class="sec" id="lb-s2">⑨ 学歴・職歴</div>
+      <div class="dyn-rows" id="career-rows"></div>
+      <button class="add-btn" onclick="addCareer()" id="lb-add-c">＋ 行を追加</button>
+
+      <div class="sec" id="lb-s3">⑩ 資格・免許</div>
+      <div class="field"><textarea id="f-lic" rows="2" placeholder="専門級、技能実習終了証明書 など"></textarea></div>
+
+      <div class="sec" id="lb-s4">体の状態</div>
+      <div class="fg c3">
+        <div class="field"><label id="lb-ht">身長 (cm)</label><input type="number" id="f-ht"></div>
+        <div class="field"><label id="lb-wt">体重 (kg)</label><input type="number" id="f-wt"></div>
+        <div class="field"><label id="lb-bl">血液型</label>
+          <select id="f-bl"><option value="">--</option><option>A型</option><option>B型</option><option>O型</option><option>AB型</option></select>
+        </div>
+      </div>
+      <div class="fg c2" style="margin-top:11px;">
+        <div class="field"><label id="lb-ill">病気</label><input type="text" id="f-ill"></div>
+        <div class="field"><label id="lb-vis">視力（右/左）</label><input type="text" id="f-vis" placeholder="1.0 / 1.0"></div>
+      </div>
+      <div class="fg c2" style="margin-top:11px;">
+        <div class="field"><label id="lb-hand">利き手</label>
+          <div class="rg"><label><input type="radio" name="hand" value="右"><span id="lb-right">右</span></label><label><input type="radio" name="hand" value="左"><span id="lb-left">左</span></label></div>
+        </div>
+        <div class="field"><label id="lb-hob">趣味</label><input type="text" id="f-hob"></div>
+      </div>
+      <div class="fg c2" style="margin-top:11px;">
+        <div class="field"><label id="lb-drink">飲酒</label>
+          <div class="rg"><label><input type="radio" name="drink" value="無"><span id="lb-nd">無</span></label><label><input type="radio" name="drink" value="時々"><span id="lb-st">時々</span></label><label><input type="radio" name="drink" value="沢山"><span id="lb-al">沢山</span></label></div>
+        </div>
+        <div class="field"><label id="lb-smoke">タバコ</label>
+          <div class="rg"><label><input type="radio" name="smoke" value="無"><span id="lb-ns">無</span></label><label><input type="radio" name="smoke" value="時々"><span id="lb-ss">時々</span></label><label><input type="radio" name="smoke" value="沢山"><span id="lb-as">沢山</span></label></div>
+        </div>
+      </div>
+
+      <div class="sec" id="lb-s5">家族構成</div>
+      <div class="dyn-rows" id="family-rows"></div>
+      <button class="add-btn" onclick="addFamily()" id="lb-add-f">＋ 行を追加</button>
+
+      <div class="sub-area">
+        <button class="btn-sub" onclick="previewDirect()" id="lb-prev">📄 プレビュー</button>
+        <button class="btn-main" onclick="translateAndShowPDF()" id="lb-pdf">🌐 日本語に翻訳して<br>PDF保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const T = {
+  ja:{title:'特定技能外国人の履歴書',back:'戻る',back2:'編集に戻る',s1:'① 基本情報',s2:'⑨ 学歴・職歴',s3:'⑩ 資格・免許',s4:'体の状態',s5:'家族構成',photo:'顔写真',photoHint:'📷\nタップして\n写真を追加',kana:'フリガナ（ローマ字）',name:'① 氏名（英字）',gender:'② 性別',male:'男性',female:'女性',dob:'③ 生年月日',nat:'④ 国籍・地域',lang:'⑤ 理解できる言語',spouse:'⑥ 配偶者',yes:'有',no:'無',jtype:'⑦ 実習の職種',jwork:'⑧ 実習の作業名',tend:'実習修了日',vexp:'ビザの期限',status:'現在の在留資格',adjp:'日本での住居地',adhm:'本国の住居地',addC:'＋ 行を追加',addF:'＋ 行を追加',ht:'身長 (cm)',wt:'体重 (kg)',bl:'血液型',ill:'病気',vis:'視力（右/左）',hand:'利き手',right:'右',left:'左',hob:'趣味',drink:'飲酒',smoke:'タバコ',nd:'無',st:'時々',al:'沢山',ns:'無',ss:'時々',as:'沢山',prev:'📄 プレビュー',pdf:'🌐 日本語に翻訳してPDF保存',cfrom:'開始年',cfromm:'月',cto:'終了年',ctom:'月',ccomp:'会社名',cstat:'在留資格',frel:'続柄',fname:'氏名',fage:'年齢',fjob:'仕事',overlayMsg:'AIが翻訳中です...',
+    modalDesc:'翻訳完了！\n下のボタンを押すと履歴書が開きます。\niPhoneの場合は「共有→ファイルに保存」でPDF保存できます。',
+    modalStep1:'「PDFを開く」ボタンを押す',modalStep2:'iPhone: 画面下「共有」→「ファイルに保存」',modalStep3:'Android: メニュー「ダウンロード」または「共有」'},
+  id:{title:'Riwayat Hidup Pekerja Terampil',back:'Kembali',back2:'Kembali ke Edit',s1:'① Informasi Dasar',s2:'⑨ Riwayat Pendidikan & Pekerjaan',s3:'⑩ Sertifikat & Lisensi',s4:'Kondisi Fisik',s5:'Anggota Keluarga',photo:'Foto Wajah',photoHint:'📷\nKetuk untuk\nmenambah foto',kana:'Nama (Huruf Romawi)',name:'① Nama Lengkap',gender:'② Jenis Kelamin',male:'Laki-laki',female:'Perempuan',dob:'③ Tanggal Lahir',nat:'④ Kewarganegaraan',lang:'⑤ Bahasa yang Dikuasai',spouse:'⑥ Status Perkawinan',yes:'Sudah Menikah',no:'Belum Menikah',jtype:'⑦ Jenis Pekerjaan',jwork:'⑧ Nama Pekerjaan',tend:'Tanggal Selesai Magang',vexp:'Batas Waktu Visa',status:'Status Tinggal',adjp:'Alamat di Jepang',adhm:'Alamat Negara Asal',addC:'＋ Tambah Baris',addF:'＋ Tambah Baris',ht:'Tinggi (cm)',wt:'Berat (kg)',bl:'Golongan Darah',ill:'Penyakit',vis:'Penglihatan (Kanan/Kiri)',hand:'Tangan Dominan',right:'Kanan',left:'Kiri',hob:'Hobi',drink:'Minum Alkohol',smoke:'Merokok',nd:'Tidak',st:'Kadang',al:'Sering',ns:'Tidak',ss:'Kadang',as:'Sering',prev:'📄 Pratinjau',pdf:'🌐 Terjemahkan ke Jepang & Simpan PDF',cfrom:'Tahun Mulai',cfromm:'Bulan',cto:'Tahun Selesai',ctom:'Bulan',ccomp:'Nama Perusahaan',cstat:'Status Visa',frel:'Hubungan',fname:'Nama',fage:'Usia',fjob:'Pekerjaan',overlayMsg:'AI sedang menerjemahkan...',
+    modalDesc:'Terjemahan selesai!\nTekan tombol di bawah untuk membuka CV.\nSimpan sebagai PDF melalui menu browser.',
+    modalStep1:'Tekan tombol "Buka PDF"',modalStep2:'iPhone: Tombol "Bagikan" → "Simpan ke File"',modalStep3:'Android: Menu → "Download" atau "Bagikan"'},
+  vi:{title:'Lý Lịch Người Lao Động Kỹ Năng',back:'Quay lại',back2:'Quay lại chỉnh sửa',s1:'① Thông tin cơ bản',s2:'⑨ Học vấn & Kinh nghiệm',s3:'⑩ Bằng cấp & Chứng chỉ',s4:'Tình trạng sức khỏe',s5:'Thành viên gia đình',photo:'Ảnh chân dung',photoHint:'📷\nNhấn để\nthêm ảnh',kana:'Tên (Chữ La tinh)',name:'① Họ và tên',gender:'② Giới tính',male:'Nam',female:'Nữ',dob:'③ Ngày sinh',nat:'④ Quốc tịch',lang:'⑤ Ngôn ngữ thành thạo',spouse:'⑥ Tình trạng hôn nhân',yes:'Đã kết hôn',no:'Chưa kết hôn',jtype:'⑦ Ngành nghề thực tập',jwork:'⑧ Tên công việc',tend:'Ngày kết thúc thực tập',vexp:'Hạn visa',status:'Tư cách lưu trú',adjp:'Địa chỉ tại Nhật',adhm:'Địa chỉ quê hương',addC:'＋ Thêm dòng',addF:'＋ Thêm dòng',ht:'Chiều cao (cm)',wt:'Cân nặng (kg)',bl:'Nhóm máu',ill:'Bệnh tật',vis:'Thị lực (Phải/Trái)',hand:'Tay thuận',right:'Phải',left:'Trái',hob:'Sở thích',drink:'Uống rượu',smoke:'Hút thuốc',nd:'Không',st:'Thỉnh thoảng',al:'Nhiều',ns:'Không',ss:'Thỉnh thoảng',as:'Nhiều',prev:'📄 Xem trước',pdf:'🌐 Dịch sang tiếng Nhật & Lưu PDF',cfrom:'Năm bắt đầu',cfromm:'Tháng',cto:'Năm kết thúc',ctom:'Tháng',ccomp:'Tên công ty',cstat:'Tư cách lưu trú',frel:'Quan hệ',fname:'Họ tên',fage:'Tuổi',fjob:'Nghề nghiệp',overlayMsg:'AI đang dịch...',
+    modalDesc:'Dịch xong!\nNhấn nút bên dưới để mở CV.\nLưu PDF qua menu trình duyệt.',
+    modalStep1:'Nhấn nút "Mở PDF"',modalStep2:'iPhone: Nút "Chia sẻ" → "Lưu vào File"',modalStep3:'Android: Menu → "Tải xuống" hoặc "Chia sẻ"'},
+  km:{title:'ប្រវត្តិរូបកម្មករជំនាញ',back:'ត្រឡប់',back2:'ត្រឡប់ទៅកែ',s1:'① ព័ត៌មានមូលដ្ឋាន',s2:'⑨ ប្រវត្តិការសិក្សា & ការងារ',s3:'⑩ គុណវុឌ្ឍិ & អាជ្ញាប័ណ្ណ',s4:'ស្ថានភាពរាងកាយ',s5:'សមាជិកគ្រួសារ',photo:'រូបថត',photoHint:'📷\nចុចដើម្បី\nបន្ថែមរូបថត',kana:'ឈ្មោះ (Roman)',name:'① ឈ្មោះពេញ',gender:'② ភេទ',male:'ប្រុស',female:'ស្រី',dob:'③ ថ្ងៃខែឆ្នាំ',nat:'④ សញ្ជាតិ',lang:'⑤ ភាសា',spouse:'⑥ ស្ថានភាព',yes:'មានគូ',no:'នៅលីវ',jtype:'⑦ ប្រភេទការងារ',jwork:'⑧ ឈ្មោះការងារ',tend:'ថ្ងៃបញ្ចប់',vexp:'ផុតកំណត់វីសា',status:'ស្ថានភាពស្នាក់នៅ',adjp:'អាសយដ្ឋានជប៉ុន',adhm:'អាសយដ្ឋានស្រុក',addC:'＋ បន្ថែមជួរ',addF:'＋ បន្ថែមជួរ',ht:'កម្ពស់ (cm)',wt:'ទម្ងន់ (kg)',bl:'ក្រុមឈាម',ill:'ជំងឺ',vis:'ការឃើញ (ស្ដាំ/ឆ្វេង)',hand:'ដៃត្រឹម',right:'ស្ដាំ',left:'ឆ្វេង',hob:'ចំណូលចិត្ត',drink:'ផឹកស្រា',smoke:'ជក់បារី',nd:'មិនផឹក',st:'ម្តងម្កាល',al:'ច្រើន',ns:'មិនជក់',ss:'ម្តងម្កាល',as:'ច្រើន',prev:'📄 មើលជាមុន',pdf:'🌐 បកប្រែ & រក្សាទុក PDF',cfrom:'ឆ្នាំចាប់ផ្តើម',cfromm:'ខែ',cto:'ឆ្នាំបញ្ចប់',ctom:'ខែ',ccomp:'ឈ្មោះក្រុមហ៊ុន',cstat:'ស្ថានភាពវីសា',frel:'ទំនាក់ទំនង',fname:'ឈ្មោះ',fage:'អាយុ',fjob:'មុខរបរ',overlayMsg:'AI កំពុងបកប្រែ...',
+    modalDesc:'បកប្រែរួចរាល់!\nចុចប៊ូតុងខាងក្រោម ដើម្បីបើកឯកសារ។',
+    modalStep1:'ចុច "បើក PDF"',modalStep2:'iPhone: "ចែករំលែក" → "រក្សាទុកទៅ File"',modalStep3:'Android: "ទាញយក" ឬ "ចែករំលែក"'},
+  tl:{title:'Curriculum Vitae - Espesyal na Bihasang Manggagawa',back:'Bumalik',back2:'Bumalik sa Edit',s1:'① Pangunahing Impormasyon',s2:'⑨ Edukasyon at Karanasan',s3:'⑩ Kwalipikasyon & Lisensya',s4:'Kondisyon ng Katawan',s5:'Mga Miyembro ng Pamilya',photo:'Larawan',photoHint:'📷\nPindutin para\nmagdagdag ng larawan',kana:'Pangalan (Roman)',name:'① Buong Pangalan',gender:'② Kasarian',male:'Lalaki',female:'Babae',dob:'③ Petsa ng Kapanganakan',nat:'④ Nasyonalidad',lang:'⑤ Mga Wika',spouse:'⑥ Katayuan',yes:'May Asawa',no:'Walang Asawa',jtype:'⑦ Uri ng Trabaho',jwork:'⑧ Pangalan ng Trabaho',tend:'Petsa ng Pagtatapos',vexp:'Pagkaexpire ng Visa',status:'Kasalukuyang Status',adjp:'Tirahan sa Japan',adhm:'Tirahan sa Sariling Bansa',addC:'＋ Magdagdag ng Linya',addF:'＋ Magdagdag ng Linya',ht:'Taas (cm)',wt:'Timbang (kg)',bl:'Uri ng Dugo',ill:'Sakit',vis:'Paningin (Kanan/Kaliwa)',hand:'Kamay na Ginagamit',right:'Kanan',left:'Kaliwa',hob:'Libangan',drink:'Pag-inom',smoke:'Paninigarilyo',nd:'Hindi',st:'Paminsan-minsan',al:'Madalas',ns:'Hindi',ss:'Paminsan-minsan',as:'Madalas',prev:'📄 Preview',pdf:'🌐 Isalin sa Japanese at Mag-save ng PDF',cfrom:'Taon ng Simula',cfromm:'Buwan',cto:'Taon ng Pagtatapos',ctom:'Buwan',ccomp:'Pangalan ng Kumpanya',cstat:'Status ng Visa',frel:'Relasyon',fname:'Pangalan',fage:'Edad',fjob:'Trabaho',overlayMsg:'Ang AI ay nagsasalin...',
+    modalDesc:'Tapos na ang pagsasalin!\nPindutin ang button para buksan ang CV.',
+    modalStep1:'Pindutin ang "Buksan ang PDF"',modalStep2:'iPhone: "I-share" → "I-save sa Files"',modalStep3:'Android: Menu → "I-download" o "I-share"'},
+  en:{title:'Resume - Specified Skilled Worker',back:'Back',back2:'Back to Edit',s1:'① Basic Information',s2:'⑨ Education & Work History',s3:'⑩ Qualifications & Licenses',s4:'Physical Condition',s5:'Family Members',photo:'Photo',photoHint:'📷\nTap to\nadd photo',kana:'Name (Roman Letters)',name:'① Full Name',gender:'② Gender',male:'Male',female:'Female',dob:'③ Date of Birth',nat:'④ Nationality',lang:'⑤ Languages',spouse:'⑥ Marital Status',yes:'Married',no:'Single',jtype:'⑦ Type of Training',jwork:'⑧ Work Name',tend:'Training End Date',vexp:'Visa Expiration',status:'Residence Status',adjp:'Address in Japan',adhm:'Home Country Address',addC:'＋ Add Row',addF:'＋ Add Row',ht:'Height (cm)',wt:'Weight (kg)',bl:'Blood Type',ill:'Illness',vis:'Vision (Right/Left)',hand:'Dominant Hand',right:'Right',left:'Left',hob:'Hobbies',drink:'Drinking',smoke:'Smoking',nd:'No',st:'Sometimes',al:'Often',ns:'No',ss:'Sometimes',as:'Often',prev:'📄 Preview',pdf:'🌐 Translate to Japanese & Save PDF',cfrom:'Start Year',cfromm:'Month',cto:'End Year',ctom:'Month',ccomp:'Company Name',cstat:'Visa Status',frel:'Relation',fname:'Name',fage:'Year Born',fjob:'Job',overlayMsg:'AI is translating...',
+    modalDesc:'Translation complete!\nPress the button below to open the resume.\nSave as PDF via your browser menu.',
+    modalStep1:'Press "Open PDF"',modalStep2:'iPhone: "Share" → "Save to Files"',modalStep3:'Android: Menu → "Download" or "Share"'}
+};
+
+let currentLang='ja', photoDataUrl='', careerCnt=0, familyCnt=0;
+let pendingHtml='';
+
+function selectLang(l){
+  currentLang=l; applyT(l);
+  document.getElementById('lang-screen').style.display='none';
+  document.getElementById('form-screen').style.display='block';
+  if(careerCnt===0){addCareer();addCareer();}
+  if(familyCnt===0){addFamily();addFamily();addFamily();}
+}
+function applyT(l){
+  const t=T[l];
+  const s=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  s('ft',t.title);s('lb-back',t.back);
+  s('lb-s1',t.s1);s('lb-s2',t.s2);s('lb-s3',t.s3);s('lb-s4',t.s4);s('lb-s5',t.s5);
+  s('lb-photo',t.photo);
+  const ph=document.getElementById('photo-hint');if(ph)ph.textContent=t.photoHint;
+  s('lb-kana',t.kana);s('lb-name',t.name);s('lb-gender',t.gender);
+  s('lb-male',t.male);s('lb-female',t.female);s('lb-dob',t.dob);
+  s('lb-nat',t.nat);s('lb-lang',t.lang);s('lb-spouse',t.spouse);
+  s('lb-yes',t.yes);s('lb-no',t.no);
+  s('lb-jtype',t.jtype);s('lb-jwork',t.jwork);
+  s('lb-tend',t.tend);s('lb-vexp',t.vexp);
+  s('lb-status',t.status);s('lb-adjp',t.adjp);s('lb-adhm',t.adhm);
+  s('lb-add-c',t.addC);s('lb-add-f',t.addF);
+  s('lb-ht',t.ht);s('lb-wt',t.wt);s('lb-bl',t.bl);
+  s('lb-ill',t.ill);s('lb-vis',t.vis);s('lb-hand',t.hand);
+  s('lb-right',t.right);s('lb-left',t.left);s('lb-hob',t.hob);
+  s('lb-drink',t.drink);s('lb-smoke',t.smoke);
+  s('lb-nd',t.nd);s('lb-st',t.st);s('lb-al',t.al);
+  s('lb-ns',t.ns);s('lb-ss',t.ss);s('lb-as',t.as);
+  s('lb-prev',t.prev);s('lb-pdf',t.pdf);
+}
+function goBack(){
+  document.getElementById('form-screen').style.display='none';
+  document.getElementById('lang-screen').style.display='flex';
+}
+function prevPhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    photoDataUrl=ev.target.result;
+    const img=document.getElementById('photo-prev');
+    img.src=photoDataUrl;img.style.display='block';
+    document.getElementById('photo-hint').style.display='none';
+  };
+  r.readAsDataURL(file);
+}
+function addCareer(){
+  const t=T[currentLang];
+  const id=++careerCnt;
+  const d=document.createElement('div');
+  d.className='drow career-drow';d.id=`cr-${id}`;
+  d.innerHTML=`<div><label>${t.cfrom}</label><input type="number" placeholder="2022"></div><div><label>${t.cfromm}</label><input type="number" min="1" max="12" placeholder="4"></div><div><label>${t.cto}</label><input type="number" placeholder="2025"></div><div><label>${t.ctom}</label><input type="number" min="1" max="12" placeholder="3"></div><div><label>${t.ccomp}</label><input type="text"></div><div><label>${t.cstat}</label><input type="text"></div><button class="del-btn" onclick="document.getElementById('cr-${id}').remove()">×</button>`;
+  document.getElementById('career-rows').appendChild(d);
+}
+function addFamily(){
+  const t=T[currentLang];
+  const id=++familyCnt;
+  const d=document.createElement('div');
+  d.className='drow family-drow';d.id=`fr-${id}`;
+  d.innerHTML=`<div><label>${t.frel}</label><input type="text"></div><div><label>${t.fname}</label><input type="text"></div><div><label>${t.fage}</label><input type="number" placeholder="1965"></div><div><label>${t.fjob}</label><input type="text"></div><button class="del-btn" onclick="document.getElementById('fr-${id}').remove()">×</button>`;
+  document.getElementById('family-rows').appendChild(d);
+}
+function collectData(){
+  const gv=n=>{const e=document.querySelector(`input[name="${n}"]:checked`);return e?e.value:'';};
+  const v=id=>document.getElementById(id)?.value||'';
+  const careers=[];
+  document.querySelectorAll('#career-rows .drow').forEach(row=>{
+    const i=row.querySelectorAll('input');
+    careers.push({fy:i[0].value,fm:i[1].value,ty:i[2].value,tm:i[3].value,comp:i[4].value,stat:i[5].value});
+  });
+  const families=[];
+  document.querySelectorAll('#family-rows .drow').forEach(row=>{
+    const i=row.querySelectorAll('input');
+    families.push({rel:i[0].value,name:i[1].value,age:i[2].value,job:i[3].value});
+  });
+  return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:v('f-jtype'),jwork:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
+}
+async function translateFields(data,fromLang){
+  if(fromLang==='ja')return data;
+  const ln={id:'インドネシア語',vi:'ベトナム語',km:'クメール語',tl:'タガログ語',en:'英語'};
+  const toTr={nat:data.nat,lang:data.lang,jtype:data.jtype,jwork:data.jwork,status:data.status,adjp:data.adjp,adhm:data.adhm,lic:data.lic,ill:data.ill,hob:data.hob};
+  data.careers.forEach((c,i)=>{toTr[`cc${i}`]=c.comp;toTr[`cs${i}`]=c.stat;});
+  data.families.forEach((f,i)=>{toTr[`fr${i}`]=f.rel;toTr[`fn${i}`]=f.name;toTr[`fj${i}`]=f.job;});
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:`以下のJSONは${ln[fromLang]}で書かれた特定技能外国人の履歴書フィールドです。すべての値を自然な日本語に翻訳してください。ルール：氏名はローマ字のまま・空文字は空文字のまま・JSONキーは変えず値のみ翻訳・JSONのみ返す\n${JSON.stringify(toTr)}`}]})});
+  const result=await res.json();
+  const text=result.content.map(b=>b.text||'').join('');
+  const tr=JSON.parse(text.replace(/```json|```/g,'').trim());
+  const get=(k,fb)=>tr[k]||fb;
+  data.nat=get('nat',data.nat);data.lang=get('lang',data.lang);data.jtype=get('jtype',data.jtype);data.jwork=get('jwork',data.jwork);data.status=get('status',data.status);data.adjp=get('adjp',data.adjp);data.adhm=get('adhm',data.adhm);data.lic=get('lic',data.lic);data.ill=get('ill',data.ill);data.hob=get('hob',data.hob);
+  data.careers=data.careers.map((c,i)=>({...c,comp:get(`cc${i}`,c.comp),stat:get(`cs${i}`,c.stat)}));
+  data.families=data.families.map((f,i)=>({...f,rel:get(`fr${i}`,f.rel),name:get(`fn${i}`,f.name),job:get(`fj${i}`,f.job)}));
+  const GM={'Male':'男性','Laki-laki':'男性','Nam':'男性','ប្រុស':'男性','Lalaki':'男性','Female':'女性','Perempuan':'女性','Nữ':'女性','ស្រី':'女性','Babae':'女性'};
+  const SM={'Sudah Menikah':'有','Đã kết hôn':'有','មានគូ':'有','May Asawa':'有','Married':'有','Belum Menikah':'無','Chưa kết hôn':'無','នៅលីវ':'無','Walang Asawa':'無','Single':'無'};
+  const HM={'Kanan':'右','Phải':'右','ស្ដាំ':'右','Right':'右','Kiri':'左','Trái':'左','ឆ្វេង':'左','Left':'左'};
+  const DM={'Tidak':'無','Không':'無','មិនផឹក':'無','Hindi':'無','No':'無','Kadang':'時々','Thỉnh thoảng':'時々','ម្តងម្កាល':'時々','Paminsan-minsan':'時々','Sometimes':'時々','Sering':'沢山','Nhiều':'沢山','ច្រើន':'沢山','Madalas':'沢山','Often':'沢山','មិនជក់':'無'};
+  if(GM[data.gender])data.gender=GM[data.gender];
+  if(SM[data.spouse])data.spouse=SM[data.spouse];
+  if(HM[data.hand])data.hand=HM[data.hand];
+  if(DM[data.drink])data.drink=DM[data.drink];
+  if(DM[data.smoke])data.smoke=DM[data.smoke];
+  return data;
+}
+function fmtDate(s){if(!s)return'';const d=new Date(s);return`${d.getFullYear()}年 ${d.getMonth()+1}月 ${d.getDate()}日`;}
+function buildResumeHTML(data){
+  const cRows=data.careers.filter(c=>c.comp||c.fy).map(c=>`<tr><td style="text-align:center;">${c.fy}</td><td style="text-align:center;">${c.fm}</td><td style="text-align:center;">${c.ty}</td><td style="text-align:center;">${c.tm}</td><td>${c.comp}</td><td style="text-align:center;">${c.stat}</td></tr>`).join('')||'<tr><td colspan="6" style="height:26px;"></td></tr>';
+  const fRows=data.families.filter(f=>f.name||f.rel).map(f=>`<tr><td style="text-align:center;">${f.rel}</td><td>${f.name}</td><td style="text-align:center;">${f.age?f.age+'年':''}</td><td>${f.job}</td></tr>`).join('')||'<tr><td colspan="4" style="height:26px;"></td></tr>';
+  const photo=data.photo?`<img src="${data.photo}" style="width:90px;height:114px;object-fit:cover;border:1px solid #999;">`:`<div style="width:90px;height:114px;border:1px solid #999;display:flex;align-items:center;justify-content:center;font-size:11px;color:#aaa;font-family:sans-serif;">写真</div>`;
+  const vis=data.vis?data.vis.split('/'):['',''];
+  const cLen=Math.max(data.careers.filter(c=>c.comp||c.fy).length,1);
+  const fLen=Math.max(data.families.filter(f=>f.name||f.rel).length,1);
+  return`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Noto Sans JP',sans-serif;padding:12mm 10mm;font-size:12px;color:#000}h2{text-align:center;font-size:17px;letter-spacing:.4em;margin-bottom:10px;font-weight:700}table{width:100%;border-collapse:collapse}td,th{border:1px solid #000;padding:5px 6px;vertical-align:middle;font-size:12px}.lc{background:#ebebeb;font-weight:700;font-size:11px;white-space:nowrap;text-align:center}.nb{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;background:#000;color:#fff;border-radius:50%;font-size:8px;margin-right:2px;font-weight:700}@media print{@page{size:A4 portrait;margin:8mm}}</style></head><body><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;"><div style="width:90px;"></div><h2>特 定 技 能 外 国 人 の 履 歴 書</h2><div>${photo}</div></div><table><tr><td class="lc" rowspan="2" style="width:52px;"><span class="nb">①</span>氏名</td><td class="lc" style="width:56px;">フリガナ</td><td colspan="2">${data.kana}</td><td class="lc" style="width:64px;"><span class="nb">②</span>性別</td><td colspan="2">${data.gender}</td></tr><tr><td class="lc">英字</td><td colspan="2">${data.name}</td><td class="lc"><span class="nb">③</span>生年月日</td><td colspan="2">${fmtDate(data.dob)}</td></tr><tr><td class="lc" colspan="2"><span class="nb">④</span>国籍・地域</td><td>${data.nat}</td><td class="lc"><span class="nb">⑤</span>十分に理解できる言語</td><td>${data.lang}</td><td class="lc"><span class="nb">⑥</span>配偶者の有無</td><td style="text-align:center;">${data.spouse}</td></tr><tr><td class="lc" colspan="2"><span class="nb">⑦</span>実習の職種</td><td colspan="2">${data.jtype}</td><td class="lc"><span class="nb">⑧</span>実習の作業名</td><td colspan="2">${data.jwork}</td></tr><tr><td class="lc" colspan="2">実習修了日</td><td colspan="2">${fmtDate(data.tend)}</td><td class="lc">ビザの期限</td><td colspan="2">${fmtDate(data.vexp)}</td></tr><tr><td class="lc" colspan="2">現在の在留資格</td><td colspan="5">${data.status}</td></tr><tr><td class="lc" colspan="2">日本での現在住居地</td><td colspan="5">${data.adjp}</td></tr><tr><td class="lc" colspan="2">本国の住居地</td><td colspan="5">${data.adhm}</td></tr><tr><td class="lc" rowspan="${cLen+2}"><span class="nb">⑨</span>学歴・職歴</td><th class="lc">年</th><th class="lc">月</th><th class="lc">年</th><th class="lc">月</th><th class="lc">会社名</th><th class="lc">当時の在留資格</th></tr>${cRows}<tr><td colspan="6" style="height:20px;"></td></tr><tr><td class="lc" colspan="2"><span class="nb">⑩</span>資格・免許</td><td colspan="5" style="white-space:pre-wrap;min-height:40px;">${data.lic||'　－ 専門級、技能実習終了証明書'}</td></tr><tr><td class="lc" rowspan="5">体の状態</td><td class="lc">身長</td><td>${data.ht} cm</td><td class="lc" rowspan="5">その他</td><td class="lc">利き手</td><td colspan="2">${data.hand}</td></tr><tr><td class="lc">体重</td><td>${data.wt} kg</td><td class="lc">趣味</td><td colspan="2">${data.hob}</td></tr><tr><td class="lc">血液型</td><td>${data.bl}</td><td class="lc">飲酒</td><td colspan="2">${data.drink}</td></tr><tr><td class="lc">病気</td><td>${data.ill}</td><td class="lc">タバコ</td><td colspan="2">${data.smoke}</td></tr><tr><td class="lc">視力</td><td>右:${(vis[0]||'').trim()} 左:${(vis[1]||'').trim()}</td><td colspan="3"></td></tr><tr><td class="lc" rowspan="${fLen+2}">家族構成</td><th class="lc">続柄</th><th class="lc" colspan="2">氏名</th><th class="lc">年齢</th><th class="lc" colspan="2">仕事</th></tr>${fRows}<tr><td colspan="6" style="height:20px;"></td></tr></table><script>window.onload=function(){window.print();}<\/script></body></html>`;
+}
+function previewDirect(){
+  const data=collectData();
+  pendingHtml=buildResumeHTML(data);
+  showModal(data);
+}
+async function translateAndShowPDF(){
+  const rawData=collectData();
+  const overlay=document.getElementById('overlay');
+  document.getElementById('overlay-msg').textContent=T[currentLang].overlayMsg;
+  overlay.classList.add('show');
+  try{
+    const translated=await translateFields(JSON.parse(JSON.stringify(rawData)),currentLang);
+    pendingHtml=buildResumeHTML(translated);
+    overlay.classList.remove('show');
+    showModal(translated);
+  }catch(e){
+    overlay.classList.remove('show');
+    alert('エラー: '+e.message);
+  }
+}
+function showModal(data){
+  const t=T[currentLang];
+  document.getElementById('modal-desc').textContent=t.modalDesc;
+  const steps=document.getElementById('modal-steps-list');
+  steps.innerHTML=`<li>${t.modalStep1}</li><li>${t.modalStep2}</li><li>${t.modalStep3}</li>`;
+  const nm=data.name||'履歴書';
+  document.getElementById('modal-open-btn').setAttribute('data-name',nm);
+  document.getElementById('pdf-modal').classList.add('show');
+}
+function openPdfWindow(){
+  document.getElementById('pdf-modal').classList.remove('show');
+  const w=window.open('','_blank');
+  if(w){
+    w.document.write(pendingHtml);
+    w.document.close();
+  } else {
+    // ポップアップブロックされた場合はBlob URLで開く
+    const blob=new Blob([pendingHtml],{type:'text/html'});
+    const url=URL.createObjectURL(blob);
+    window.location.href=url;
+  }
+}
+</script>
+</body>
+</html>
