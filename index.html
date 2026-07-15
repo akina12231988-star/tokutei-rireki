@@ -450,10 +450,10 @@ function setView(mode){
 (function dateInputs(){
   function attach(id){
     var el=document.getElementById(id); if(!el) return;
-    // 入力途中は再整形せず、確定時(blur)に8桁なら YYYY/MM/DD へ整形
+    // 入力途中は再整形せず、確定時(blur)に年月日が揃えば YYYY/MM/DD へ整形
     el.addEventListener('blur',function(){
-      var v=el.value.replace(/[^\d]/g,'');
-      if(v.length===8) el.value=v.slice(0,4)+'/'+v.slice(4,6)+'/'+v.slice(6);
+      var p=dparts(el.value);
+      if(p&&p.y&&p.y.length===4&&p.m&&p.d) el.value=p.y+'/'+pad2(p.m)+'/'+pad2(p.d);
     });
   }
   ['f-dob','f-tend','f-vexp'].forEach(attach);
@@ -572,10 +572,27 @@ async function translateFields(data, fromLang){
 }
 
 /* ---- 日付整形 ------------------------------------------------------------ */
-// 直接入力（1995/03/01・1995-3-1・19950301 等）を許容し、履歴書表記へ整形
-function fmtDate(s){if(!s)return'';s=String(s).trim();let m=s.match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})/)||s.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return`${+m[1]}年 ${+m[2]}月 ${+m[3]}日`;m=s.match(/^(\d{4})\D+(\d{1,2})$/)||s.match(/^(\d{4})(\d{2})$/);if(m)return`${+m[1]}年 ${+m[2]}月`;return s;}
-// 埋め込みJSON用にYYYY-MM-DDへ正規化（管理システムの取り込み用）
-function toISO(s){if(!s)return'';s=String(s).trim();const m=s.match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})/)||s.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);return s;}
+function pad2(x){x=String(x);return x.length<2?('0'+x).slice(-2):x;}
+// 日付の直接入力を柔軟に解釈して {y,m,d} を返す。
+// 対応: 1995/03/01・1995-3-1・19950301（8桁）・2027214（YYYY+M+DD 等の可変桁）
+function dparts(s){
+  s=String(s||'').trim(); if(!s) return null;
+  var sep=s.match(/^(\d{1,4})\D+(\d{1,2})(?:\D+(\d{1,2}))?/);   // 区切りあり
+  if(sep) return {y:sep[1], m:sep[2]||'', d:sep[3]||''};
+  var v=s.replace(/\D/g,''); if(v.length<4) return {y:v, m:'', d:''};
+  var y=v.slice(0,4), r=v.slice(4);                              // 年4桁＋残り
+  if(r.length<=2) return {y:y, m:r, d:''};                       // 月まで
+  if(r.length===3){                                              // 月1〜2桁＋日
+    var mm=+r.slice(0,2);
+    return (mm>=1&&mm<=12)?{y:y,m:r.slice(0,2),d:r.slice(2)}     // MM + D
+                          :{y:y,m:r.slice(0,1),d:r.slice(1)};    // M + DD（例 2027214→2/14）
+  }
+  return {y:y, m:r.slice(0,2), d:r.slice(2,4)};                  // MM + DD
+}
+// 履歴書表記へ整形
+function fmtDate(s){var p=dparts(s);if(!p||!p.y)return String(s||'');var o=(+p.y)+'年';if(p.m)o+=' '+(+p.m)+'月';if(p.d)o+=' '+(+p.d)+'日';return o;}
+// 埋め込みJSON用に YYYY-MM-DD へ正規化（管理システムの取り込み用）
+function toISO(s){var p=dparts(s);if(!p||!p.y)return String(s||'');if(p.m&&p.d)return p.y+'-'+pad2(p.m)+'-'+pad2(p.d);if(p.m)return p.y+'-'+pad2(p.m);return p.y;}
 
 /* ---- ⑩⑪⑫ 共通データフォーマット（PDFへ埋め込む機械可読ペイロード） ------
  * PDFテキスト層に見えない白文字で埋め込む。外国人管理システムはこれを読み取る。
