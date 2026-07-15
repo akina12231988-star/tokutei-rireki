@@ -527,47 +527,101 @@ function collectData(){
   return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:v('f-jtype'),jwork:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
 }
 
-/* ---- ⑤⑥ 日本語化（辞書変換＋任意のバックエンド翻訳） --------------------
- * 選択式項目（性別/配偶者/利き手/飲酒/タバコ/在留資格）は value が日本語コード
- * なので辞書で確定変換 → API不要。自由記述のみ任意でバックエンド翻訳する。
- * どの段階で失敗してもデータはそのまま返し、フロー全体は必ず完了する。 */
+/* ---- ⑤⑥ 日本語化 ---------------------------------------------------------
+ * 選択式（性別/配偶者/利き手/飲酒/タバコ/在留資格）は value が日本語コードで確定済み。
+ * 自由記述欄は次の優先順で日本語化する：
+ *   1) 安全なバックエンド(TRANSLATE_ENDPOINT)が設定されていれば優先
+ *   2) 無ければキー不要の無料翻訳(Google公開エンドポイント)をブラウザから利用
+ *   3) いずれも失敗したら原文のまま（PDFフローは必ず完了）
+ * すでに日本語の入力（住所・会社名など）と氏名は翻訳対象から除外して壊さない。 */
 const FREE_TEXT_KEYS=['nat','lang','jtype','jwork','status','adjp','adhm','lic','ill','hob'];
+// 現在の在留資格によく入力されるローマ字/略記を日本語へ
+const STATUS_MAP={tokuteiginou1:'特定技能1号',tokuteighino1:'特定技能1号',tokutei1:'特定技能1号',ssw1:'特定技能1号',tokuteiginou2:'特定技能2号',tokuteighino2:'特定技能2号',tokutei2:'特定技能2号',ssw2:'特定技能2号',ginoujisshu:'技能実習',tokuteikatsudou:'特定活動',ryugaku:'留学'};
+function normStatus(s){ if(!s) return null; var k=String(s).toLowerCase().replace(/[\s　・\-号（）()]/g,''); return STATUS_MAP[k]||null; }
+function hasJP(s){ return /[぀-ヿ㐀-鿿]/.test(String(s||'')); }
+/* 内蔵翻訳辞書（通信なし）: 国籍・言語・続柄・病気・職種など「決まった語」を確実に日本語化。
+ * 要件⑥に従い、ブラウザから外部翻訳APIは呼ばない。ここに無い自由記述は
+ * 安全なバックエンド(TRANSLATE_ENDPOINT)設定時のみ翻訳する。 */
+const DICT={
+  // 国籍・地域
+  'việt nam':'ベトナム','viet nam':'ベトナム','vietnam':'ベトナム','nước việt nam':'ベトナム',
+  'indonesia':'インドネシア','campuchia':'カンボジア','cambodia':'カンボジア','kampuchea':'カンボジア',
+  'philippines':'フィリピン','pilipinas':'フィリピン','myanmar':'ミャンマー','miến điện':'ミャンマー',
+  'thái lan':'タイ','thailand':'タイ','trung quốc':'中国','china':'中国','nepal':'ネパール','mông cổ':'モンゴル','mongolia':'モンゴル',
+  // 言語
+  'tiếng việt':'ベトナム語','tiếng việt nam':'ベトナム語','vietnamese':'ベトナム語','bahasa vietnam':'ベトナム語',
+  'tiếng nhật':'日本語','tiếng nhật bản':'日本語','japanese':'日本語','nihongo':'日本語','bahasa jepang':'日本語','日本语':'日本語',
+  'tiếng anh':'英語','english':'英語','bahasa inggris':'英語',
+  'bahasa indonesia':'インドネシア語','indonesian':'インドネシア語','tiếng indonesia':'インドネシア語',
+  'tiếng khmer':'クメール語','khmer':'クメール語','tagalog':'タガログ語','filipino':'タガログ語',
+  'tiếng trung':'中国語','chinese':'中国語',
+  // 有無（病気など）
+  'không':'無','không có':'無','khong':'無','tidak':'無','tidak ada':'無','wala':'無','none':'無','no':'無','គ្មាន':'無','khỏe mạnh':'無',
+  'có':'有','co':'有','ada':'有','oo':'有','yes':'有','មាន':'有',
+  // 続柄
+  'vợ':'妻','chồng':'夫','cha':'父','bố':'父','ba':'父','ayah':'父','father':'父','ama':'父',
+  'mẹ':'母','má':'母','ibu':'母','mother':'母','ina':'母',
+  'con trai':'息子','anak laki-laki':'息子','son':'息子','anak lalaki':'息子',
+  'con gái':'娘','anak perempuan':'娘','daughter':'娘','anak babae':'娘',
+  'anh trai':'兄','anh':'兄','older brother':'兄','kakak laki-laki':'兄','kuya':'兄',
+  'em trai':'弟','younger brother':'弟','adik laki-laki':'弟',
+  'chị gái':'姉','chị':'姉','older sister':'姉','kakak perempuan':'姉','ate':'姉',
+  'em gái':'妹','younger sister':'妹','adik perempuan':'妹',
+  'ông':'祖父','bà':'祖母',
+  // 職種・仕事
+  'nông nghiệp':'農業','pertanian':'農業','agriculture':'農業','farming':'農業','agrikultura':'農業',
+  'văn phòng':'事務','office':'事務','kantor':'事務','opisina':'事務','nhân viên văn phòng':'事務員',
+  'công nhân':'労働者','worker':'労働者','buruh':'労働者','manggagawa':'労働者',
+  'nội trợ':'主婦','housewife':'主婦','ibu rumah tangga':'主婦',
+  'xây dựng':'建設','construction':'建設','konstruksi':'建設',
+  'chế biến thực phẩm':'食品加工','food processing':'食品加工',
+  'điều dưỡng':'介護','chăm sóc':'介護','care':'介護','nursing':'介護','caregiver':'介護','介護士':'介護',
+  'lái xe':'運転手','driver':'運転手','sopir':'運転手',
+  'sinh viên':'学生','student':'学生','pelajar':'学生','estudyante':'学生','học sinh':'学生',
+  'giáo viên':'教師','teacher':'教師','guru':'教師',
+  'kinh doanh':'自営業','business':'自営業','buôn bán':'自営業',
+  'nghỉ hưu':'退職','retired':'退職','pensiunan':'退職'
+};
+function dictJa(s){ if(!s) return null; var k=String(s).toLowerCase().trim().replace(/\s+/g,' ').replace(/[.,。、･・･]+$/,''); return DICT[k]||null; }
+
 async function translateFields(data, fromLang){
-  // 在留資格コード → 日本語（PDFは必ず日本語）
-  data.careers=data.careers.map(c=>({...c, statJa:residenceJa(c.statKey)}));
+  data.careers=data.careers.map(function(c){ return {...c, statJa:residenceJa(c.statKey)}; });
   data._translateNote='';
-  if(fromLang==='ja') return data;              // 日本語入力はそのまま
-  if(!TRANSLATE_ENDPOINT){                        // バックエンド未設定 → 辞書のみ
-    data._translateNote='自由記述欄は入力言語のまま出力されます（自動翻訳バックエンド未設定）。';
+  if(fromLang==='ja') return data;                       // 日本語入力はそのまま
+  var sm=normStatus(data.status); if(sm) data.status=sm; // 在留資格のローマ字入力を補正
+
+  // 1) 内蔵辞書で確定変換（通信なし）。すでに日本語の値・氏名は対象外。
+  var applyDict=function(get,set){ var t=get(); if(t && !hasJP(t)){ var d=dictJa(t); if(d) set(d); } };
+  FREE_TEXT_KEYS.forEach(function(k){ applyDict(function(){return data[k];}, function(v){data[k]=v;}); });
+  data.careers.forEach(function(c,i){ applyDict(function(){return c.comp;}, function(v){data.careers[i].comp=v;}); });
+  data.families.forEach(function(f,i){ applyDict(function(){return f.rel;}, function(v){data.families[i].rel=v;}); applyDict(function(){return f.job;}, function(v){data.families[i].job=v;}); });
+
+  // 2) 辞書で変換できなかった非日本語の自由記述を収集
+  var jobs=[];
+  FREE_TEXT_KEYS.forEach(function(k){ if(data[k] && !hasJP(data[k])) jobs.push({t:data[k], set:function(v){data[k]=v;}}); });
+  data.careers.forEach(function(c,i){ if(c.comp && !hasJP(c.comp)) jobs.push({t:c.comp, set:function(v){data.careers[i].comp=v;}}); });
+  data.families.forEach(function(f,i){ if(f.rel && !hasJP(f.rel)) jobs.push({t:f.rel, set:function(v){data.families[i].rel=v;}}); if(f.job && !hasJP(f.job)) jobs.push({t:f.job, set:function(v){data.families[i].job=v;}}); });
+  if(jobs.length===0) return data;
+
+  // 3) 安全なバックエンドが設定されていれば残りを翻訳（ブラウザから直接APIは呼ばない）
+  if(TRANSLATE_ENDPOINT){
+    var ln={id:'インドネシア語',vi:'ベトナム語',km:'クメール語',tl:'タガログ語',en:'英語'};
+    var texts={}; jobs.forEach(function(j,i){ texts['t'+i]=j.t; });
+    try{
+      var ctrl=new AbortController(); var timer=setTimeout(function(){ctrl.abort();},25000);
+      var res=await fetch(TRANSLATE_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({from:ln[fromLang]||fromLang, texts:texts}),signal:ctrl.signal});
+      clearTimeout(timer);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      var out=await res.json(); var tr=(out&&out.translations)||{};
+      jobs.forEach(function(j,i){ var v=tr['t'+i]; if(v!=null&&v!=='') j.set(v); });
+    }catch(e){
+      data._translateNote='翻訳サーバーに接続できなかったため、一部の自由記述は入力言語のまま出力しました。';
+    }
     return data;
   }
-  const ln={id:'インドネシア語',vi:'ベトナム語',km:'クメール語',tl:'タガログ語',en:'英語'};
-  const texts={};
-  for(const k of FREE_TEXT_KEYS){ if(data[k]) texts[k]=data[k]; }
-  data.careers.forEach((c,i)=>{ if(c.comp) texts['cc'+i]=c.comp; });
-  data.families.forEach((f,i)=>{ if(f.rel) texts['fr'+i]=f.rel; if(f.name) texts['fn'+i]=f.name; if(f.job) texts['fj'+i]=f.job; });
-  if(Object.keys(texts).length===0) return data;
-  try{
-    const ctrl=new AbortController();
-    const timer=setTimeout(()=>ctrl.abort(),25000);   // タイムアウト処理
-    const res=await fetch(TRANSLATE_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({from:ln[fromLang]||fromLang, texts}),
-      signal:ctrl.signal
-    });
-    clearTimeout(timer);
-    if(!res.ok) throw new Error('APIエラー: HTTP '+res.status);
-    const out=await res.json();                        // JSON解析エラーはcatchへ
-    const tr=(out&&out.translations)||{};
-    const g=(k,fb)=>tr[k]!=null&&tr[k]!==''?tr[k]:fb;
-    for(const k of FREE_TEXT_KEYS){ if(data[k]) data[k]=g(k,data[k]); }
-    data.careers=data.careers.map((c,i)=>({...c, comp:g('cc'+i,c.comp)}));
-    data.families=data.families.map((f,i)=>({...f, rel:g('fr'+i,f.rel), name:g('fn'+i,f.name), job:g('fj'+i,f.job)}));
-  }catch(e){
-    // 翻訳失敗でもPDFは必ず出す（自由記述は入力言語のまま）
-    data._translateNote='自動翻訳に接続できなかったため、自由記述欄は入力言語のまま出力しました。';
-  }
+
+  // 4) バックエンド未設定：辞書で変換できない自由記述（会社名・趣味・住所など）は入力言語のまま
+  data._translateNote='国籍・言語・続柄・病気・職種などは日本語化しました。会社名・趣味・住所など一部の自由記述は、翻訳サーバー未設定のため入力言語のまま出力しています。';
   return data;
 }
 
