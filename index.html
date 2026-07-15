@@ -93,9 +93,36 @@ body.force-pc .c3{grid-template-columns:1fr 1fr 1fr;}
 body.force-pc .career-drow{grid-template-columns:70px 42px 70px 42px 1fr 1.2fr 26px;}
 body.force-pc .family-drow{grid-template-columns:80px 1fr 80px 1fr 26px;}
 body.force-pc{min-width:900px;}
+/* 外部ブラウザ誘導ゲート */
+#ext-gate{display:none;position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,#1a3a5c 0%,#2d6a9f 100%);align-items:center;justify-content:center;padding:24px;}
+.eg-box{background:#fff;border-radius:18px;max-width:400px;width:100%;padding:26px 22px;text-align:center;box-shadow:0 14px 40px rgba(0,0,0,.3);}
+.eg-emoji{font-size:40px;margin-bottom:6px;}
+.eg-box h2{font-size:18px;color:#1a3a5c;margin-bottom:10px;}
+.eg-box p{font-size:13px;color:#555;line-height:1.7;margin-bottom:16px;}
+.eg-primary{width:100%;background:#1a3a5c;color:#fff;border:none;border-radius:10px;padding:15px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:10px;}
+.eg-copy{width:100%;background:#e8f0fb;color:#1a3a5c;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;margin-bottom:16px;}
+.eg-steps{background:#f0f6ff;border-radius:10px;padding:14px;text-align:left;font-size:12.5px;color:#333;line-height:1.8;margin-bottom:12px;}
+.eg-steps b{color:#1a3a5c;}
+.eg-ignore{background:none;border:none;color:#94a3b8;font-size:12.5px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;text-decoration:underline;}
 </style>
 </head>
 <body>
+
+<!-- 外部ブラウザ誘導（Messenger等のアプリ内ブラウザ対策） -->
+<div id="ext-gate">
+  <div class="eg-box">
+    <div class="eg-emoji">🌐</div>
+    <h2>ブラウザで開いてください</h2>
+    <p>アプリ内の画面では、PDF保存などが正しく動作しません。SafariやChromeなどのブラウザで開いてご利用ください。</p>
+    <button class="eg-primary" id="eg-open">🌐 ブラウザで開く</button>
+    <button class="eg-copy" id="eg-copy">🔗 リンクをコピー</button>
+    <div class="eg-steps">
+      <p><b>iPhone：</b>画面下の「共有」または右下の「•••」→<b>「Safariで開く」</b></p>
+      <p><b>Android：</b>右上の「⋮」→<b>「ブラウザで開く」</b>（またはChromeで開く）</p>
+    </div>
+    <button class="eg-ignore" id="eg-ignore">このまま続ける</button>
+  </div>
+</div>
 
 <div id="overlay"><div class="spinner"></div><div id="overlay-msg">AIが翻訳中です...</div></div>
 
@@ -376,6 +403,47 @@ function setView(mode){
   let mode='auto';
   try{ mode=localStorage.getItem('rirekiView')||'auto'; }catch(e){}
   document.addEventListener('DOMContentLoaded',()=>setView(mode));
+})();
+
+/* ---- 外部ブラウザ誘導（Messenger/LINE等のアプリ内ブラウザ対策） ----------
+ * アプリ内ブラウザは window.print() 等が無効なため、標準ブラウザで開くよう誘導。
+ * Android は intent:// で Chrome を直接起動（自動・1回のみ）。
+ * iOS はJSでSafariを強制起動できない仕様のため、開き方の案内＋リンクコピーを提供。 */
+(function externalBrowserGate(){
+  var UA=navigator.userAgent||'';
+  var isIOS=/iPhone|iPad|iPod/i.test(UA);
+  var isAndroid=/Android/i.test(UA);
+  var inApp=/FBAN|FBAV|FB_IAB|FBIOS|Messenger|Instagram|Line\/|MicroMessenger|Twitter|TikTok|KAKAOTALK|; wv\)|\bwv\b/i.test(UA);
+  var gate=document.getElementById('ext-gate');
+  if(!gate||!inApp) return;               // 通常ブラウザ・PCはそのまま利用
+  gate.style.display='flex';
+  var url=location.href;
+  function openExternal(){
+    if(isAndroid){
+      var noScheme=url.replace(/^https?:\/\//,'');
+      // Chromeを intent で起動。未導入時は同URLへフォールバック
+      location.href='intent://'+noScheme+'#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url='+encodeURIComponent(url)+';end';
+      return;
+    }
+    if(isIOS){
+      // iOSは強制不可。x-safari を試みる（多くは無効なので下部の手順に従ってもらう）
+      try{ location.href='x-safari-'+url; }catch(e){}
+      return;
+    }
+    window.open(url,'_blank');
+  }
+  var b1=document.getElementById('eg-open'); if(b1) b1.addEventListener('click',openExternal);
+  var b2=document.getElementById('eg-copy');
+  if(b2) b2.addEventListener('click',function(){
+    var done=function(){ b2.textContent='コピーしました ✓'; setTimeout(function(){b2.textContent='🔗 リンクをコピー';},1600); };
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done,function(){ window.prompt('このURLをコピーしてブラウザに貼り付けてください',url); }); }
+    else { window.prompt('このURLをコピーしてブラウザに貼り付けてください',url); }
+  });
+  var b3=document.getElementById('eg-ignore'); if(b3) b3.addEventListener('click',function(){ gate.style.display='none'; });
+  // Androidは自動で一度だけChrome起動を試みる（ループ防止にセッションフラグ）
+  try{
+    if(isAndroid && !sessionStorage.getItem('extTried')){ sessionStorage.setItem('extTried','1'); setTimeout(openExternal,250); }
+  }catch(e){}
 })();
 
 /* ---- 写真 ---------------------------------------------------------------- */
