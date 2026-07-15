@@ -45,7 +45,7 @@ body { font-family: 'Noto Sans JP', sans-serif; background:#f0f4f8; min-height:1
 .rg input[type=radio] { width:14px; height:14px; accent-color:#2d6a9f; }
 .dyn-rows { display:flex; flex-direction:column; gap:8px; margin-bottom:8px; }
 .drow { display:grid; gap:6px; align-items:end; background:#f8fafc; padding:8px; border-radius:8px; border:1px solid #e0eaf4; }
-.career-drow { grid-template-columns:70px 42px 70px 42px 1fr 1.2fr 26px; }
+.career-drow { grid-template-columns:1fr 1fr 1.3fr 1.2fr 1.2fr 26px; }
 .family-drow { grid-template-columns:80px 1fr 80px 1fr 26px; }
 .drow input,.drow select { border:1.5px solid #d0dbe8; border-radius:6px; padding:7px; font-size:13px; background:#fff; width:100%; font-family:'Noto Sans JP',sans-serif; }
 .drow label { font-size:10px; color:#777; display:block; margin-bottom:2px; }
@@ -90,7 +90,7 @@ body.force-mobile .family-drow{grid-template-columns:1fr 1fr;}
 body.force-pc #form-screen{max-width:860px;}
 body.force-pc .c2{grid-template-columns:1fr 1fr;}
 body.force-pc .c3{grid-template-columns:1fr 1fr 1fr;}
-body.force-pc .career-drow{grid-template-columns:70px 42px 70px 42px 1fr 1.2fr 26px;}
+body.force-pc .career-drow{grid-template-columns:1fr 1fr 1.3fr 1.2fr 1.2fr 26px;}
 body.force-pc .family-drow{grid-template-columns:80px 1fr 80px 1fr 26px;}
 body.force-pc{min-width:900px;}
 /* 外部ブラウザ誘導ゲート */
@@ -206,8 +206,8 @@ body.force-pc{min-width:900px;}
         </div>
       </div>
       <div class="fg c2" style="margin-top:12px;">
-        <div class="field"><label id="lb-jtype">⑦ 実習の職種</label><input type="text" id="f-jtype"></div>
-        <div class="field"><label id="lb-jwork">⑧ 実習の作業名</label><input type="text" id="f-jwork"></div>
+        <div class="field"><label id="lb-jtype">⑦ 技能実習生としての職種名</label><select id="f-jtype"></select></div>
+        <div class="field"><label id="lb-jwork">⑧ 技能実習生としての作業名</label><select id="f-jwork"></select></div>
       </div>
       <div class="fg c2" style="margin-top:12px;">
         <div class="field"><label id="lb-tend">実習修了日</label><input type="text" id="f-tend" inputmode="numeric" placeholder="2022/03/31" autocomplete="off"></div>
@@ -281,22 +281,22 @@ const TRANSLATE_ENDPOINT = ''; // 例: 'https://<your-app>.vercel.app/api/transl
 
 /* ---- ⑬ 翻訳辞書（UI文言） ------------------------------------------------ */
 const T = {
-  ja:{title:'特定技能外国人の履歴書',back:'戻る',back2:'編集に戻る',s1:'① 基本情報',s2:'⑨ 職歴',s3:'⑩ 資格・免許',s4:'体の状態',s5:'家族構成',photo:'顔写真',photoHint:'📷\nタップして\n写真を追加',kana:'フリガナ（カタカナ）',name:'① 氏名（英字）',gender:'② 性別',male:'男性',female:'女性',dob:'③ 生年月日',nat:'④ 国籍・地域',lang:'⑤ 理解できる言語',spouse:'⑥ 配偶者',yes:'有',no:'無',jtype:'⑦ 実習の職種',jwork:'⑧ 実習の作業名',tend:'実習修了日',vexp:'ビザの期限',status:'現在の在留資格',adjp:'日本での住居地',adhm:'本国の住居地',addC:'＋ 行を追加',addF:'＋ 行を追加',ht:'身長 (cm)',wt:'体重 (kg)',bl:'血液型',ill:'病気',vis:'視力（右/左）',hand:'利き手',right:'右',left:'左',hob:'趣味',drink:'飲酒',smoke:'タバコ',nd:'無',st:'時々',al:'沢山',ns:'無',ss:'時々',as:'沢山',prev:'📄 プレビュー',pdf:'🌐 日本語に翻訳してPDF保存',cfrom:'開始年',cfromm:'月',cto:'終了年',ctom:'月',ccomp:'会社名',cstat:'当時の在留資格',cstatPlaceholder:'選択してください',frel:'続柄',fname:'氏名',fage:'年齢',fjob:'仕事',overlayMsg:'AIが翻訳中です...',
+  ja:{title:'特定技能外国人の履歴書',back:'戻る',back2:'編集に戻る',s1:'① 基本情報',s2:'⑨ 職歴',s3:'⑩ 資格・免許',s4:'体の状態',s5:'家族構成',photo:'顔写真',photoHint:'📷\nタップして\n写真を追加',kana:'フリガナ（カタカナ）',name:'① 氏名（英字）',gender:'② 性別',male:'男性',female:'女性',dob:'③ 生年月日',nat:'④ 国籍・地域',lang:'⑤ 理解できる言語',spouse:'⑥ 配偶者',yes:'有',no:'無',jtype:'⑦ 技能実習生としての職種名',jwork:'⑧ 技能実習生としての作業名',tend:'実習修了日',vexp:'ビザの期限',status:'現在の在留資格',adjp:'日本での住居地',adhm:'本国の住居地',addC:'＋ 行を追加',addF:'＋ 行を追加',ht:'身長 (cm)',wt:'体重 (kg)',bl:'血液型',ill:'病気',vis:'視力（右/左）',hand:'利き手',right:'右',left:'左',hob:'趣味',drink:'飲酒',smoke:'タバコ',nd:'無',st:'時々',al:'沢山',ns:'無',ss:'時々',as:'沢山',prev:'📄 プレビュー',pdf:'🌐 日本語に翻訳してPDF保存',cfrom:'開始',cfromm:'月',cto:'終了',ctom:'月',ccomp:'会社名',cstat:'当時の在留資格',cstatPlaceholder:'選択してください',cfield:'特定技能分野',frel:'続柄',fname:'氏名',fage:'年齢',fjob:'仕事',overlayMsg:'AIが翻訳中です...',
     modalDesc:'翻訳完了！\n下のボタンを押すと履歴書が開きます。\niPhoneの場合は「共有→ファイルに保存」でPDF保存できます。',
     modalNote:'', modalStep1:'「PDFを開く」ボタンを押す',modalStep2:'iPhone: 画面下「共有」→「ファイルに保存」',modalStep3:'Android: メニュー「ダウンロード」または「共有」'},
-  id:{title:'Riwayat Hidup Pekerja Terampil',back:'Kembali',back2:'Kembali ke Edit',s1:'① Informasi Dasar',s2:'⑨ Riwayat Pekerjaan',s3:'⑩ Sertifikat & Lisensi',s4:'Kondisi Fisik',s5:'Anggota Keluarga',photo:'Foto Wajah',photoHint:'📷\nKetuk untuk\nmenambah foto',kana:'Nama（カタカナ）',name:'① Nama Lengkap',gender:'② Jenis Kelamin',male:'Laki-laki',female:'Perempuan',dob:'③ Tanggal Lahir',nat:'④ Kewarganegaraan',lang:'⑤ Bahasa yang Dikuasai',spouse:'⑥ Status Perkawinan',yes:'Sudah Menikah',no:'Belum Menikah',jtype:'⑦ Jenis Pekerjaan',jwork:'⑧ Nama Pekerjaan',tend:'Tanggal Selesai Magang',vexp:'Batas Waktu Visa',status:'Status Tinggal Saat Ini',adjp:'Alamat di Jepang',adhm:'Alamat Negara Asal',addC:'＋ Tambah Baris',addF:'＋ Tambah Baris',ht:'Tinggi (cm)',wt:'Berat (kg)',bl:'Golongan Darah',ill:'Penyakit',vis:'Penglihatan (Kanan/Kiri)',hand:'Tangan Dominan',right:'Kanan',left:'Kiri',hob:'Hobi',drink:'Minum Alkohol',smoke:'Merokok',nd:'Tidak',st:'Kadang',al:'Sering',ns:'Tidak',ss:'Kadang',as:'Sering',prev:'📄 Pratinjau',pdf:'🌐 Terjemahkan ke Jepang & Simpan PDF',cfrom:'Tahun Mulai',cfromm:'Bulan',cto:'Tahun Selesai',ctom:'Bulan',ccomp:'Nama Perusahaan',cstat:'Status Tinggal Saat Itu',cstatPlaceholder:'Silakan pilih',frel:'Hubungan',fname:'Nama',fage:'Usia',fjob:'Pekerjaan',overlayMsg:'AI sedang menerjemahkan...',
+  id:{title:'Riwayat Hidup Pekerja Terampil',back:'Kembali',back2:'Kembali ke Edit',s1:'① Informasi Dasar',s2:'⑨ Riwayat Pekerjaan',s3:'⑩ Sertifikat & Lisensi',s4:'Kondisi Fisik',s5:'Anggota Keluarga',photo:'Foto Wajah',photoHint:'📷\nKetuk untuk\nmenambah foto',kana:'Nama（カタカナ）',name:'① Nama Lengkap',gender:'② Jenis Kelamin',male:'Laki-laki',female:'Perempuan',dob:'③ Tanggal Lahir',nat:'④ Kewarganegaraan',lang:'⑤ Bahasa yang Dikuasai',spouse:'⑥ Status Perkawinan',yes:'Sudah Menikah',no:'Belum Menikah',jtype:'⑦ Jenis Pekerjaan (Magang)',jwork:'⑧ Nama Pekerjaan (Magang)',tend:'Tanggal Selesai Magang',vexp:'Batas Waktu Visa',status:'Status Tinggal Saat Ini',adjp:'Alamat di Jepang',adhm:'Alamat Negara Asal',addC:'＋ Tambah Baris',addF:'＋ Tambah Baris',ht:'Tinggi (cm)',wt:'Berat (kg)',bl:'Golongan Darah',ill:'Penyakit',vis:'Penglihatan (Kanan/Kiri)',hand:'Tangan Dominan',right:'Kanan',left:'Kiri',hob:'Hobi',drink:'Minum Alkohol',smoke:'Merokok',nd:'Tidak',st:'Kadang',al:'Sering',ns:'Tidak',ss:'Kadang',as:'Sering',prev:'📄 Pratinjau',pdf:'🌐 Terjemahkan ke Jepang & Simpan PDF',cfrom:'Mulai',cfromm:'Bulan',cto:'Selesai',ctom:'Bulan',ccomp:'Nama Perusahaan',cstat:'Status Tinggal Saat Itu',cstatPlaceholder:'Silakan pilih',cfield:'Bidang SSW',frel:'Hubungan',fname:'Nama',fage:'Usia',fjob:'Pekerjaan',overlayMsg:'AI sedang menerjemahkan...',
     modalDesc:'Terjemahan selesai!\nTekan tombol di bawah untuk membuka CV.\nSimpan sebagai PDF melalui menu browser.',
     modalNote:'', modalStep1:'Tekan tombol "Buka PDF"',modalStep2:'iPhone: "Bagikan" → "Simpan ke File"',modalStep3:'Android: Menu → "Download" atau "Bagikan"'},
-  vi:{title:'Lý Lịch Người Lao Động Kỹ Năng',back:'Quay lại',back2:'Quay lại chỉnh sửa',s1:'① Thông tin cơ bản',s2:'⑨ Kinh nghiệm làm việc',s3:'⑩ Bằng cấp & Chứng chỉ',s4:'Tình trạng sức khỏe',s5:'Thành viên gia đình',photo:'Ảnh chân dung',photoHint:'📷\nNhấn để\nthêm ảnh',kana:'Tên（カタカナ）',name:'① Họ và tên',gender:'② Giới tính',male:'Nam',female:'Nữ',dob:'③ Ngày sinh',nat:'④ Quốc tịch',lang:'⑤ Ngôn ngữ thành thạo',spouse:'⑥ Tình trạng hôn nhân',yes:'Đã kết hôn',no:'Chưa kết hôn',jtype:'⑦ Ngành nghề thực tập',jwork:'⑧ Tên công việc',tend:'Ngày kết thúc thực tập',vexp:'Hạn visa',status:'Tư cách lưu trú hiện tại',adjp:'Địa chỉ tại Nhật',adhm:'Địa chỉ quê hương',addC:'＋ Thêm dòng',addF:'＋ Thêm dòng',ht:'Chiều cao (cm)',wt:'Cân nặng (kg)',bl:'Nhóm máu',ill:'Bệnh tật',vis:'Thị lực (Phải/Trái)',hand:'Tay thuận',right:'Phải',left:'Trái',hob:'Sở thích',drink:'Uống rượu',smoke:'Hút thuốc',nd:'Không',st:'Thỉnh thoảng',al:'Nhiều',ns:'Không',ss:'Thỉnh thoảng',as:'Nhiều',prev:'📄 Xem trước',pdf:'🌐 Dịch sang tiếng Nhật & Lưu PDF',cfrom:'Năm bắt đầu',cfromm:'Tháng',cto:'Năm kết thúc',ctom:'Tháng',ccomp:'Tên công ty',cstat:'Tư cách lưu trú khi đó',cstatPlaceholder:'Vui lòng chọn',frel:'Quan hệ',fname:'Họ tên',fage:'Tuổi',fjob:'Nghề nghiệp',overlayMsg:'AI đang dịch...',
+  vi:{title:'Lý Lịch Người Lao Động Kỹ Năng',back:'Quay lại',back2:'Quay lại chỉnh sửa',s1:'① Thông tin cơ bản',s2:'⑨ Kinh nghiệm làm việc',s3:'⑩ Bằng cấp & Chứng chỉ',s4:'Tình trạng sức khỏe',s5:'Thành viên gia đình',photo:'Ảnh chân dung',photoHint:'📷\nNhấn để\nthêm ảnh',kana:'Tên（カタカナ）',name:'① Họ và tên',gender:'② Giới tính',male:'Nam',female:'Nữ',dob:'③ Ngày sinh',nat:'④ Quốc tịch',lang:'⑤ Ngôn ngữ thành thạo',spouse:'⑥ Tình trạng hôn nhân',yes:'Đã kết hôn',no:'Chưa kết hôn',jtype:'⑦ Ngành nghề (TTS kỹ năng)',jwork:'⑧ Tên công việc (TTS kỹ năng)',tend:'Ngày kết thúc thực tập',vexp:'Hạn visa',status:'Tư cách lưu trú hiện tại',adjp:'Địa chỉ tại Nhật',adhm:'Địa chỉ quê hương',addC:'＋ Thêm dòng',addF:'＋ Thêm dòng',ht:'Chiều cao (cm)',wt:'Cân nặng (kg)',bl:'Nhóm máu',ill:'Bệnh tật',vis:'Thị lực (Phải/Trái)',hand:'Tay thuận',right:'Phải',left:'Trái',hob:'Sở thích',drink:'Uống rượu',smoke:'Hút thuốc',nd:'Không',st:'Thỉnh thoảng',al:'Nhiều',ns:'Không',ss:'Thỉnh thoảng',as:'Nhiều',prev:'📄 Xem trước',pdf:'🌐 Dịch sang tiếng Nhật & Lưu PDF',cfrom:'Bắt đầu',cfromm:'Tháng',cto:'Kết thúc',ctom:'Tháng',ccomp:'Tên công ty',cstat:'Tư cách lưu trú khi đó',cstatPlaceholder:'Vui lòng chọn',cfield:'Ngành KNĐĐ',frel:'Quan hệ',fname:'Họ tên',fage:'Tuổi',fjob:'Nghề nghiệp',overlayMsg:'AI đang dịch...',
     modalDesc:'Dịch xong!\nNhấn nút bên dưới để mở CV.\nLưu PDF qua menu trình duyệt.',
     modalNote:'', modalStep1:'Nhấn nút "Mở PDF"',modalStep2:'iPhone: "Chia sẻ" → "Lưu vào File"',modalStep3:'Android: Menu → "Tải xuống" hoặc "Chia sẻ"'},
-  km:{title:'ប្រវត្តិរូបកម្មករជំនាញ',back:'ត្រឡប់',back2:'ត្រឡប់ទៅកែ',s1:'① ព័ត៌មានមូលដ្ឋាន',s2:'⑨ បទពិសោធន៍ការងារ',s3:'⑩ គុណវុឌ្ឍិ & អាជ្ញាប័ណ្ណ',s4:'ស្ថានភាពរាងកាយ',s5:'សមាជិកគ្រួសារ',photo:'រូបថត',photoHint:'📷\nចុចដើម្បី\nបន្ថែមរូបថត',kana:'ឈ្មោះ（カタカナ）',name:'① ឈ្មោះពេញ',gender:'② ភេទ',male:'ប្រុស',female:'ស្រី',dob:'③ ថ្ងៃខែឆ្នាំ',nat:'④ សញ្ជាតិ',lang:'⑤ ភាសា',spouse:'⑥ ស្ថានភាព',yes:'មានគូ',no:'នៅលីវ',jtype:'⑦ ប្រភេទការងារ',jwork:'⑧ ឈ្មោះការងារ',tend:'ថ្ងៃបញ្ចប់',vexp:'ផុតកំណត់វីសា',status:'ស្ថានភាពស្នាក់នៅបច្ចុប្បន្ន',adjp:'អាសយដ្ឋានជប៉ុន',adhm:'អាសយដ្ឋានស្រុក',addC:'＋ បន្ថែមជួរ',addF:'＋ បន្ថែមជួរ',ht:'កម្ពស់ (cm)',wt:'ទម្ងន់ (kg)',bl:'ក្រុមឈាម',ill:'ជំងឺ',vis:'ការឃើញ (ស្ដាំ/ឆ្វេង)',hand:'ដៃត្រឹម',right:'ស្ដាំ',left:'ឆ្វេង',hob:'ចំណូលចិត្ត',drink:'ផឹកស្រា',smoke:'ជក់បារី',nd:'មិនផឹក',st:'ម្តងម្កាល',al:'ច្រើន',ns:'មិនជក់',ss:'ម្តងម្កាល',as:'ច្រើន',prev:'📄 មើលជាមុន',pdf:'🌐 បកប្រែ & រក្សាទុក PDF',cfrom:'ឆ្នាំចាប់ផ្តើម',cfromm:'ខែ',cto:'ឆ្នាំបញ្ចប់',ctom:'ខែ',ccomp:'ឈ្មោះក្រុមហ៊ុន',cstat:'ស្ថានភាពស្នាក់នៅពេលនោះ',cstatPlaceholder:'សូមជ្រើសរើស',frel:'ទំនាក់ទំនង',fname:'ឈ្មោះ',fage:'អាយុ',fjob:'មុខរបរ',overlayMsg:'AI កំពុងបកប្រែ...',
+  km:{title:'ប្រវត្តិរូបកម្មករជំនាញ',back:'ត្រឡប់',back2:'ត្រឡប់ទៅកែ',s1:'① ព័ត៌មានមូលដ្ឋាន',s2:'⑨ បទពិសោធន៍ការងារ',s3:'⑩ គុណវុឌ្ឍិ & អាជ្ញាប័ណ្ណ',s4:'ស្ថានភាពរាងកាយ',s5:'សមាជិកគ្រួសារ',photo:'រូបថត',photoHint:'📷\nចុចដើម្បី\nបន្ថែមរូបថត',kana:'ឈ្មោះ（カタカナ）',name:'① ឈ្មោះពេញ',gender:'② ភេទ',male:'ប្រុស',female:'ស្រី',dob:'③ ថ្ងៃខែឆ្នាំ',nat:'④ សញ្ជាតិ',lang:'⑤ ភាសា',spouse:'⑥ ស្ថានភាព',yes:'មានគូ',no:'នៅលីវ',jtype:'⑦ ប្រភេទការងារ (កម្មសិក្សា)',jwork:'⑧ ឈ្មោះការងារ (កម្មសិក្សា)',tend:'ថ្ងៃបញ្ចប់',vexp:'ផុតកំណត់វីសា',status:'ស្ថានភាពស្នាក់នៅបច្ចុប្បន្ន',adjp:'អាសយដ្ឋានជប៉ុន',adhm:'អាសយដ្ឋានស្រុក',addC:'＋ បន្ថែមជួរ',addF:'＋ បន្ថែមជួរ',ht:'កម្ពស់ (cm)',wt:'ទម្ងន់ (kg)',bl:'ក្រុមឈាម',ill:'ជំងឺ',vis:'ការឃើញ (ស្ដាំ/ឆ្វេង)',hand:'ដៃត្រឹម',right:'ស្ដាំ',left:'ឆ្វេង',hob:'ចំណូលចិត្ត',drink:'ផឹកស្រា',smoke:'ជក់បារី',nd:'មិនផឹក',st:'ម្តងម្កាល',al:'ច្រើន',ns:'មិនជក់',ss:'ម្តងម្កាល',as:'ច្រើន',prev:'📄 មើលជាមុន',pdf:'🌐 បកប្រែ & រក្សាទុក PDF',cfrom:'ចាប់ផ្តើម',cfromm:'ខែ',cto:'បញ្ចប់',ctom:'ខែ',ccomp:'ឈ្មោះក្រុមហ៊ុន',cstat:'ស្ថានភាពស្នាក់នៅពេលនោះ',cstatPlaceholder:'សូមជ្រើសរើស',cfield:'វិស័យ SSW',frel:'ទំនាក់ទំនង',fname:'ឈ្មោះ',fage:'អាយុ',fjob:'មុខរបរ',overlayMsg:'AI កំពុងបកប្រែ...',
     modalDesc:'បកប្រែរួចរាល់!\nចុចប៊ូតុងខាងក្រោម ដើម្បីបើកឯកសារ។',
     modalNote:'', modalStep1:'ចុច "បើក PDF"',modalStep2:'iPhone: "ចែករំលែក" → "រក្សាទុកទៅ File"',modalStep3:'Android: "ទាញយក" ឬ "ចែករំលែក"'},
-  tl:{title:'Curriculum Vitae - Espesyal na Bihasang Manggagawa',back:'Bumalik',back2:'Bumalik sa Edit',s1:'① Pangunahing Impormasyon',s2:'⑨ Karanasan sa Trabaho',s3:'⑩ Kwalipikasyon & Lisensya',s4:'Kondisyon ng Katawan',s5:'Mga Miyembro ng Pamilya',photo:'Larawan',photoHint:'📷\nPindutin para\nmagdagdag ng larawan',kana:'Pangalan（カタカナ）',name:'① Buong Pangalan',gender:'② Kasarian',male:'Lalaki',female:'Babae',dob:'③ Petsa ng Kapanganakan',nat:'④ Nasyonalidad',lang:'⑤ Mga Wika',spouse:'⑥ Katayuan',yes:'May Asawa',no:'Walang Asawa',jtype:'⑦ Uri ng Trabaho',jwork:'⑧ Pangalan ng Trabaho',tend:'Petsa ng Pagtatapos',vexp:'Pagkaexpire ng Visa',status:'Kasalukuyang Status ng Paninirahan',adjp:'Tirahan sa Japan',adhm:'Tirahan sa Sariling Bansa',addC:'＋ Magdagdag ng Linya',addF:'＋ Magdagdag ng Linya',ht:'Taas (cm)',wt:'Timbang (kg)',bl:'Uri ng Dugo',ill:'Sakit',vis:'Paningin (Kanan/Kaliwa)',hand:'Kamay na Ginagamit',right:'Kanan',left:'Kaliwa',hob:'Libangan',drink:'Pag-inom',smoke:'Paninigarilyo',nd:'Hindi',st:'Paminsan-minsan',al:'Madalas',ns:'Hindi',ss:'Paminsan-minsan',as:'Madalas',prev:'📄 Preview',pdf:'🌐 Isalin sa Japanese at Mag-save ng PDF',cfrom:'Taon ng Simula',cfromm:'Buwan',cto:'Taon ng Pagtatapos',ctom:'Buwan',ccomp:'Pangalan ng Kumpanya',cstat:'Status ng Paninirahan noon',cstatPlaceholder:'Pumili',frel:'Relasyon',fname:'Pangalan',fage:'Edad',fjob:'Trabaho',overlayMsg:'Ang AI ay nagsasalin...',
+  tl:{title:'Curriculum Vitae - Espesyal na Bihasang Manggagawa',back:'Bumalik',back2:'Bumalik sa Edit',s1:'① Pangunahing Impormasyon',s2:'⑨ Karanasan sa Trabaho',s3:'⑩ Kwalipikasyon & Lisensya',s4:'Kondisyon ng Katawan',s5:'Mga Miyembro ng Pamilya',photo:'Larawan',photoHint:'📷\nPindutin para\nmagdagdag ng larawan',kana:'Pangalan（カタカナ）',name:'① Buong Pangalan',gender:'② Kasarian',male:'Lalaki',female:'Babae',dob:'③ Petsa ng Kapanganakan',nat:'④ Nasyonalidad',lang:'⑤ Mga Wika',spouse:'⑥ Katayuan',yes:'May Asawa',no:'Walang Asawa',jtype:'⑦ Uri ng Trabaho (Technical Intern)',jwork:'⑧ Pangalan ng Gawain (Technical Intern)',tend:'Petsa ng Pagtatapos',vexp:'Pagkaexpire ng Visa',status:'Kasalukuyang Status ng Paninirahan',adjp:'Tirahan sa Japan',adhm:'Tirahan sa Sariling Bansa',addC:'＋ Magdagdag ng Linya',addF:'＋ Magdagdag ng Linya',ht:'Taas (cm)',wt:'Timbang (kg)',bl:'Uri ng Dugo',ill:'Sakit',vis:'Paningin (Kanan/Kaliwa)',hand:'Kamay na Ginagamit',right:'Kanan',left:'Kaliwa',hob:'Libangan',drink:'Pag-inom',smoke:'Paninigarilyo',nd:'Hindi',st:'Paminsan-minsan',al:'Madalas',ns:'Hindi',ss:'Paminsan-minsan',as:'Madalas',prev:'📄 Preview',pdf:'🌐 Isalin sa Japanese at Mag-save ng PDF',cfrom:'Simula',cfromm:'Buwan',cto:'Katapusan',ctom:'Buwan',ccomp:'Pangalan ng Kumpanya',cstat:'Status ng Paninirahan noon',cstatPlaceholder:'Pumili',cfield:'Larangan SSW',frel:'Relasyon',fname:'Pangalan',fage:'Edad',fjob:'Trabaho',overlayMsg:'Ang AI ay nagsasalin...',
     modalDesc:'Tapos na ang pagsasalin!\nPindutin ang button para buksan ang CV.',
     modalNote:'', modalStep1:'Pindutin ang "Buksan ang PDF"',modalStep2:'iPhone: "I-share" → "I-save sa Files"',modalStep3:'Android: Menu → "I-download" o "I-share"'},
-  en:{title:'Resume - Specified Skilled Worker',back:'Back',back2:'Back to Edit',s1:'① Basic Information',s2:'⑨ Work History',s3:'⑩ Qualifications & Licenses',s4:'Physical Condition',s5:'Family Members',photo:'Photo',photoHint:'📷\nTap to\nadd photo',kana:'Name（カタカナ）',name:'① Full Name',gender:'② Gender',male:'Male',female:'Female',dob:'③ Date of Birth',nat:'④ Nationality',lang:'⑤ Languages',spouse:'⑥ Marital Status',yes:'Married',no:'Single',jtype:'⑦ Type of Training',jwork:'⑧ Work Name',tend:'Training End Date',vexp:'Visa Expiration',status:'Current Residence Status',adjp:'Address in Japan',adhm:'Home Country Address',addC:'＋ Add Row',addF:'＋ Add Row',ht:'Height (cm)',wt:'Weight (kg)',bl:'Blood Type',ill:'Illness',vis:'Vision (Right/Left)',hand:'Dominant Hand',right:'Right',left:'Left',hob:'Hobbies',drink:'Drinking',smoke:'Smoking',nd:'No',st:'Sometimes',al:'Often',ns:'No',ss:'Sometimes',as:'Often',prev:'📄 Preview',pdf:'🌐 Translate to Japanese & Save PDF',cfrom:'Start Year',cfromm:'Month',cto:'End Year',ctom:'Month',ccomp:'Company Name',cstat:'Residence Status at the Time',cstatPlaceholder:'Please select',frel:'Relation',fname:'Name',fage:'Year Born',fjob:'Job',overlayMsg:'AI is translating...',
+  en:{title:'Resume - Specified Skilled Worker',back:'Back',back2:'Back to Edit',s1:'① Basic Information',s2:'⑨ Work History',s3:'⑩ Qualifications & Licenses',s4:'Physical Condition',s5:'Family Members',photo:'Photo',photoHint:'📷\nTap to\nadd photo',kana:'Name（カタカナ）',name:'① Full Name',gender:'② Gender',male:'Male',female:'Female',dob:'③ Date of Birth',nat:'④ Nationality',lang:'⑤ Languages',spouse:'⑥ Marital Status',yes:'Married',no:'Single',jtype:'⑦ Job Category (Technical Intern)',jwork:'⑧ Operation Name (Technical Intern)',tend:'Training End Date',vexp:'Visa Expiration',status:'Current Residence Status',adjp:'Address in Japan',adhm:'Home Country Address',addC:'＋ Add Row',addF:'＋ Add Row',ht:'Height (cm)',wt:'Weight (kg)',bl:'Blood Type',ill:'Illness',vis:'Vision (Right/Left)',hand:'Dominant Hand',right:'Right',left:'Left',hob:'Hobbies',drink:'Drinking',smoke:'Smoking',nd:'No',st:'Sometimes',al:'Often',ns:'No',ss:'Sometimes',as:'Often',prev:'📄 Preview',pdf:'🌐 Translate to Japanese & Save PDF',cfrom:'Start',cfromm:'Month',cto:'End',ctom:'Month',ccomp:'Company Name',cstat:'Residence Status at the Time',cstatPlaceholder:'Please select',cfield:'SSW Field',frel:'Relation',fname:'Name',fage:'Year Born',fjob:'Job',overlayMsg:'AI is translating...',
     modalDesc:'Translation complete!\nPress the button below to open the resume.\nSave as PDF via your browser menu.',
     modalNote:'', modalStep1:'Press "Open PDF"',modalStep2:'iPhone: "Share" → "Save to Files"',modalStep3:'Android: Menu → "Download" or "Share"'}
 };
@@ -361,6 +361,92 @@ function currentStatusOptionsHTML(lang, key){
 }
 function currentStatusJa(key){ return key&&CURRENT_BY_KEY[key]?CURRENT_BY_KEY[key].ja:''; }
 
+/* ---- 汎用: 日本語＋各国語 併記オプション / キー→日本語 ---- */
+function bilingualOptions(list, lang, key, ph){
+  var h='<option value="">'+ph+'</option>';
+  for(var i=0;i<list.length;i++){ var r=list[i];
+    var lb=(lang==='ja')?r.ja:(r.ja+' ／ '+(r[lang]||r.en||r.ja));
+    h+='<option value="'+r.key+'"'+(r.key===key?' selected':'')+'>'+lb+'</option>'; }
+  return h;
+}
+function jaOf(list,key){ if(!key) return ''; for(var i=0;i<list.length;i++) if(list[i].key===key) return list[i].ja; return ''; }
+function sswFieldJa(key){ return jaOf(SSW_FIELDS,key); }
+
+/* ---- 特定技能産業分野（16分野・日本語＋各国語） ---- */
+const SSW_FIELDS=[
+  {key:'kaigo', ja:'介護', en:'Nursing Care', vi:'Điều dưỡng', id:'Perawatan (Kaigo)', km:'ថែទាំ', tl:'Pangangalaga (Kaigo)'},
+  {key:'bldg', ja:'ビルクリーニング', en:'Building Cleaning', vi:'Vệ sinh tòa nhà', id:'Pembersihan Gedung', km:'សម្អាតអគារ', tl:'Paglilinis ng Gusali'},
+  {key:'kogyo', ja:'工業製品製造業', en:'Industrial Product Manufacturing', vi:'Sản xuất sản phẩm công nghiệp', id:'Manufaktur Produk Industri', km:'ផលិតផលិតផលឧស្សាហកម្ម', tl:'Pagmamanupaktura ng Produktong Pang-industriya'},
+  {key:'kensetsu', ja:'建設', en:'Construction', vi:'Xây dựng', id:'Konstruksi', km:'សំណង់', tl:'Konstruksyon'},
+  {key:'zosen', ja:'造船・舶用工業', en:'Shipbuilding & Ship Machinery', vi:'Đóng tàu · công nghiệp hàng hải', id:'Perkapalan & Mesin Kapal', km:'ការសាងសង់នាវា', tl:'Paggawa ng Barko at Makinarya'},
+  {key:'seibi', ja:'自動車整備', en:'Automobile Maintenance', vi:'Bảo dưỡng ô tô', id:'Perawatan Mobil', km:'ថែទាំរថយន្ត', tl:'Pagmementina ng Sasakyan'},
+  {key:'koku', ja:'航空', en:'Aviation', vi:'Hàng không', id:'Penerbangan', km:'អាកាសចរណ៍', tl:'Abyasyon'},
+  {key:'shukuhaku', ja:'宿泊', en:'Accommodation', vi:'Lưu trú (khách sạn)', id:'Akomodasi (Perhotelan)', km:'ការស្នាក់នៅ (សណ្ឋាគារ)', tl:'Akomodasyon (Hotel)'},
+  {key:'unso', ja:'自動車運送業', en:'Automobile Transportation', vi:'Vận tải ô tô', id:'Transportasi Mobil', km:'ដឹកជញ្ជូនរថយន្ត', tl:'Transportasyon ng Sasakyan'},
+  {key:'tetsudo', ja:'鉄道', en:'Railway', vi:'Đường sắt', id:'Kereta Api', km:'ផ្លូវរថភ្លើង', tl:'Tren (Riles)'},
+  {key:'nogyo', ja:'農業', en:'Agriculture', vi:'Nông nghiệp', id:'Pertanian', km:'កសិកម្ម', tl:'Agrikultura'},
+  {key:'gyogyo', ja:'漁業', en:'Fishery', vi:'Ngư nghiệp', id:'Perikanan', km:'នេសាទ', tl:'Pangingisda'},
+  {key:'inshoku_seizo', ja:'飲食料品製造業', en:'Food & Beverage Manufacturing', vi:'Sản xuất thực phẩm & đồ uống', id:'Manufaktur Makanan & Minuman', km:'ផលិតម្ហូបអាហារ និងភេសជ្ជៈ', tl:'Pagmamanupaktura ng Pagkain at Inumin'},
+  {key:'gaishoku', ja:'外食業', en:'Food Service', vi:'Dịch vụ ăn uống', id:'Layanan Makanan (Restoran)', km:'សេវាម្ហូបអាហារ', tl:'Serbisyong Pagkain (Restaurant)'},
+  {key:'ringyo', ja:'林業', en:'Forestry', vi:'Lâm nghiệp', id:'Kehutanan', km:'ព្រៃឈើ', tl:'Panggugubat'},
+  {key:'mokuzai', ja:'木材産業', en:'Wood Industry', vi:'Công nghiệp gỗ', id:'Industri Kayu', km:'ឧស្សាហកម្មឈើ', tl:'Industriya ng Kahoy'}
+];
+
+/* ---- 技能実習の作業名（よく使う作業・日本語＋各国語） ---- */
+/* ---- 技能実習法施行規則 別表第二（主要職種→作業。職種名は6言語、作業名は日本語＋英/越/尼、他は英語フォールバック） ---- */
+const JITSU_JOBS=[
+  {key:'nogyo_kosyu',ja:'耕種農業',en:'Crop Farming',vi:'Trồng trọt',id:'Pertanian tanaman',km:'កសិកម្មដំណាំ',tl:'Pagsasaka ng Pananim',works:[{key:'nogyo_kosyu_0',ja:'施設園芸',en:'Facility horticulture',vi:'Trồng trọt nhà kính',id:'Hortikultura rumah kaca'},{key:'nogyo_kosyu_1',ja:'畑作・野菜',en:'Field crops & vegetables',vi:'Trồng rau màu',id:'Tanaman ladang & sayur'},{key:'nogyo_kosyu_2',ja:'果樹',en:'Fruit growing',vi:'Trồng cây ăn quả',id:'Budidaya buah'}]},
+  {key:'chikusan',ja:'畜産農業',en:'Livestock Farming',vi:'Chăn nuôi',id:'Peternakan',km:'ចិញ្ចឹមសត្វ',tl:'Pag-aalaga ng Hayop',works:[{key:'chikusan_0',ja:'養豚',en:'Pig farming',vi:'Nuôi lợn',id:'Ternak babi'},{key:'chikusan_1',ja:'養鶏',en:'Poultry farming',vi:'Nuôi gà',id:'Ternak ayam'},{key:'chikusan_2',ja:'酪農',en:'Dairy farming',vi:'Nuôi bò sữa',id:'Peternakan sapi perah'}]},
+  {key:'gyosen',ja:'漁船漁業',en:'Fishing Vessel',vi:'Đánh bắt cá',id:'Perikanan tangkap',km:'នេសាទនាវា',tl:'Pangingisda (Barko)',works:[{key:'gyosen_0',ja:'漁船漁業',en:'Fishing vessel operation',vi:'Đánh bắt trên tàu',id:'Operasi kapal ikan'}]},
+  {key:'yoshoku',ja:'養殖業',en:'Aquaculture',vi:'Nuôi trồng thủy sản',id:'Budidaya perikanan',km:'ចិញ្ចឹមត្រី',tl:'Aquaculture',works:[{key:'yoshoku_0',ja:'ほたてがい・まがき養殖',en:'Scallop/oyster aquaculture',vi:'Nuôi sò/hàu',id:'Budidaya kerang/tiram'}]},
+  {key:'daiku',ja:'建築大工',en:'Carpentry',vi:'Mộc xây dựng',id:'Pertukangan kayu',km:'ជាងឈើសំណង់',tl:'Karpinterya',works:[{key:'daiku_0',ja:'大工工事',en:'Carpentry work',vi:'Thi công mộc',id:'Pekerjaan tukang kayu'}]},
+  {key:'katawaku',ja:'型枠施工',en:'Formwork',vi:'Ván khuôn',id:'Bekisting',km:'ការងារពុម្ព',tl:'Formwork',works:[{key:'katawaku_0',ja:'型枠工事',en:'Formwork',vi:'Thi công ván khuôn',id:'Pekerjaan bekisting'}]},
+  {key:'tekkin',ja:'鉄筋施工',en:'Rebar Work',vi:'Cốt thép',id:'Besi beton',km:'ការងារដែក',tl:'Rebar',works:[{key:'tekkin_0',ja:'鉄筋組立て',en:'Rebar assembly',vi:'Lắp cốt thép',id:'Perakitan besi beton'}]},
+  {key:'tobi',ja:'とび',en:'Scaffolding',vi:'Giàn giáo',id:'Perancah',km:'រនាំង',tl:'Scaffolding',works:[{key:'tobi_0',ja:'とび作業',en:'Scaffolding work',vi:'Công việc giàn giáo',id:'Pekerjaan perancah'}]},
+  {key:'sakan',ja:'左官',en:'Plastering',vi:'Trát vữa',id:'Plesteran',km:'បូកបាយអ',tl:'Pagpapalitada',works:[{key:'sakan_0',ja:'左官作業',en:'Plastering work',vi:'Công việc trát vữa',id:'Pekerjaan plesteran'}]},
+  {key:'naiso',ja:'内装仕上げ施工',en:'Interior Finishing',vi:'Hoàn thiện nội thất',id:'Finishing interior',km:'បញ្ចប់ការតុបតែងក្នុង',tl:'Interior Finishing',works:[{key:'naiso_0',ja:'プラスチック系床仕上げ工事',en:'Plastic floor finishing',vi:'Hoàn thiện sàn nhựa',id:'Finishing lantai plastik'},{key:'naiso_1',ja:'ボード仕上げ工事',en:'Board finishing',vi:'Hoàn thiện tấm thạch cao',id:'Finishing papan'},{key:'naiso_2',ja:'カーペット系床仕上げ工事',en:'Carpet floor finishing',vi:'Hoàn thiện sàn thảm',id:'Finishing lantai karpet'}]},
+  {key:'kenki',ja:'建設機械施工',en:'Construction Machinery',vi:'Máy xây dựng',id:'Alat berat konstruksi',km:'គ្រឿងចក្រសំណង់',tl:'Makinarya sa Konstruksyon',works:[{key:'kenki_0',ja:'押土・整地',en:'Earth moving/leveling',vi:'San lấp mặt bằng',id:'Perataan tanah'},{key:'kenki_1',ja:'積込み',en:'Loading',vi:'Bốc xếp',id:'Pemuatan'},{key:'kenki_2',ja:'掘削',en:'Excavation',vi:'Đào đất',id:'Penggalian'},{key:'kenki_3',ja:'締固め',en:'Compaction',vi:'Đầm nén',id:'Pemadatan'}]},
+  {key:'sozai',ja:'そう菜製造業',en:'Prepared Foods Mfg',vi:'Chế biến món ăn sẵn',id:'Produksi lauk siap saji',km:'ផលិតម្ហូបសម្រេច',tl:'Handa nang Pagkain',works:[{key:'sozai_0',ja:'そう菜加工',en:'Prepared foods processing',vi:'Chế biến món ăn sẵn',id:'Pengolahan lauk siap saji'}]},
+  {key:'pan',ja:'パン製造',en:'Bread Making',vi:'Làm bánh mì',id:'Pembuatan roti',km:'ធ្វើនំបុ័ង',tl:'Paggawa ng Tinapay',works:[{key:'pan_0',ja:'パン製造',en:'Bread making',vi:'Làm bánh mì',id:'Pembuatan roti'}]},
+  {key:'shokuniku',ja:'牛豚食肉処理加工業',en:'Meat Processing',vi:'Chế biến thịt',id:'Pengolahan daging',km:'កែច្នៃសាច់',tl:'Pagpoproseso ng Karne',works:[{key:'shokuniku_0',ja:'牛豚部分肉製造',en:'Beef/pork cut meat mfg',vi:'Pha lóc thịt bò/lợn',id:'Produksi potongan daging'}]},
+  {key:'fujinfuku',ja:'婦人子供服製造',en:'Apparel Sewing',vi:'May quần áo',id:'Menjahit pakaian',km:'ដេរសម្លៀកបំពាក់',tl:'Pananahi ng Damit',works:[{key:'fujinfuku_0',ja:'婦人子供既製服縫製',en:'Women\'s/children\'s apparel sewing',vi:'May quần áo nữ/trẻ em',id:'Menjahit pakaian wanita/anak'}]},
+  {key:'kikai',ja:'機械加工',en:'Machining',vi:'Gia công cơ khí',id:'Permesinan',km:'ម៉ាស៊ីនកិន',tl:'Machining',works:[{key:'kikai_0',ja:'普通旋盤',en:'Engine lathe',vi:'Tiện thường',id:'Bubut biasa'},{key:'kikai_1',ja:'フライス盤',en:'Milling machine',vi:'Phay',id:'Frais'},{key:'kikai_2',ja:'数値制御旋盤',en:'CNC lathe',vi:'Tiện CNC',id:'Bubut CNC'},{key:'kikai_3',ja:'マシニングセンタ',en:'Machining center',vi:'Trung tâm gia công',id:'Machining center'}]},
+  {key:'yosetsu',ja:'溶接',en:'Welding',vi:'Hàn',id:'Pengelasan',km:'ការផ្សារ',tl:'Paghihinang',works:[{key:'yosetsu_0',ja:'手溶接',en:'Manual welding',vi:'Hàn tay',id:'Las manual'},{key:'yosetsu_1',ja:'半自動溶接',en:'Semi-automatic welding',vi:'Hàn bán tự động',id:'Las semi-otomatis'}]},
+  {key:'tosou',ja:'塗装',en:'Painting',vi:'Sơn',id:'Pengecatan',km:'ការលាបថ្នាំ',tl:'Pagpipintura',works:[{key:'tosou_0',ja:'建築塗装',en:'Architectural painting',vi:'Sơn xây dựng',id:'Pengecatan bangunan'},{key:'tosou_1',ja:'金属塗装',en:'Metal painting',vi:'Sơn kim loại',id:'Pengecatan logam'},{key:'tosou_2',ja:'噴霧塗装',en:'Spray painting',vi:'Sơn phun',id:'Pengecatan semprot'}]},
+  {key:'plastic',ja:'プラスチック成形',en:'Plastic Molding',vi:'Ép nhựa',id:'Cetak plastik',km:'ចាក់ផ្សិតប្លាស្ទិក',tl:'Plastic Molding',works:[{key:'plastic_0',ja:'圧縮成形',en:'Compression molding',vi:'Ép nén',id:'Cetak kompresi'},{key:'plastic_1',ja:'射出成形',en:'Injection molding',vi:'Ép phun',id:'Cetak injeksi'},{key:'plastic_2',ja:'ブロー成形',en:'Blow molding',vi:'Thổi khuôn',id:'Cetak tiup'}]},
+  {key:'kaigo',ja:'介護',en:'Nursing Care',vi:'Điều dưỡng',id:'Perawatan',km:'ថែទាំ',tl:'Pangangalaga',works:[{key:'kaigo_0',ja:'介護',en:'Nursing care',vi:'Điều dưỡng',id:'Perawatan'}]},
+  {key:'bldg',ja:'ビルクリーニング',en:'Building Cleaning',vi:'Vệ sinh tòa nhà',id:'Pembersihan gedung',km:'សម្អាតអគារ',tl:'Paglilinis ng Gusali',works:[{key:'bldg_0',ja:'ビルクリーニング',en:'Building cleaning',vi:'Vệ sinh tòa nhà',id:'Pembersihan gedung'}]},
+  {key:'seibi',ja:'自動車整備',en:'Auto Maintenance',vi:'Bảo dưỡng ô tô',id:'Perawatan mobil',km:'ថែទាំរថយន្ត',tl:'Pagmementina ng Sasakyan',works:[{key:'seibi_0',ja:'自動車整備',en:'Automobile maintenance',vi:'Bảo dưỡng ô tô',id:'Perawatan mobil'}]}
+];
+function jobOptionsHTML(lang,key){ return bilingualOptions(JITSU_JOBS,lang,key,(T[lang]||T.ja).cstatPlaceholder); }
+function jobOf(key){ for(var i=0;i<JITSU_JOBS.length;i++) if(JITSU_JOBS[i].key===key) return JITSU_JOBS[i]; return null; }
+function jobJa(key){ var j=jobOf(key); return j?j.ja:''; }
+function workOptionsHTML(jobKey,lang,key){ var j=jobOf(jobKey); var ph=(T[lang]||T.ja).cstatPlaceholder; return j?bilingualOptions(j.works,lang,key,ph):('<option value="">'+ph+'</option>'); }
+function workJa(jobKey,workKey){ var j=jobOf(jobKey); if(!j) return ''; return jaOf(j.works,workKey); }
+var _jobCascadeBound=false;
+function bindJobCascade(){ if(_jobCascadeBound) return; var jt=document.getElementById('f-jtype'); if(!jt) return;
+  jt.addEventListener('change',function(){ var jw=document.getElementById('f-jwork'); if(jw) jw.innerHTML=workOptionsHTML(jt.value,currentLang,''); }); _jobCascadeBound=true; }
+
+/* ---- 職歴の日付: 数字/区切りを柔軟解釈し、月1-12・日1-31にクランプ ---- */
+function parseCareerDate(s){
+  var p=dparts(s); if(!p) return {y:'',m:'',d:''};
+  var y=/^\d{4}$/.test(p.y)?p.y:(p.y?p.y.slice(0,4):'');
+  var m=p.m?String(Math.min(Math.max(parseInt(p.m,10)||0,1),12)):'';
+  var d=p.d?String(Math.min(Math.max(parseInt(p.d,10)||0,1),31)):'';
+  return {y:y,m:m,d:d};
+}
+// 確定時(blur)に YYYY / YYYY/MM / YYYY/MM/DD へ整形
+function attachDateAuto(el){ if(!el) return; el.addEventListener('blur',function(){
+  var p=dparts(el.value); if(!p||!p.y) return; var y=p.y.slice(0,4);
+  if(!/^\d{4}$/.test(y)){ return; }
+  var out=y;
+  if(p.m){ var m=Math.min(Math.max(parseInt(p.m,10)||1,1),12); out+='/'+('0'+m).slice(-2);
+    if(p.d){ var d=Math.min(Math.max(parseInt(p.d,10)||1,1),31); out+='/'+('0'+d).slice(-2); } }
+  el.value=out;
+}); }
+// 履歴書表記（年月日）
+function fmtYM(y,m,d){ if(!y) return ''; var s=(+y)+'年'; if(m) s+=(+m)+'月'; if(d) s+=(+d)+'日'; return s; }
+
 /* ---- 状態 ---------------------------------------------------------------- */
 let currentLang='ja', photoDataUrl='', careerCnt=0, familyCnt=0;
 let pendingHtml='', pendingPayload=null, translateWarned=false;
@@ -385,6 +471,9 @@ function applyT(l){
   s('lb-nat',t.nat);s('lb-lang',t.lang);s('lb-spouse',t.spouse);
   s('lb-yes',t.yes);s('lb-no',t.no);
   s('lb-jtype',t.jtype);s('lb-jwork',t.jwork);
+  var jt=document.getElementById('f-jtype'); if(jt){ var jtc=jt.value; jt.innerHTML=jobOptionsHTML(l,jtc); }
+  var jw=document.getElementById('f-jwork'); if(jw){ var jc=jw.value; jw.innerHTML=workOptionsHTML((jt?jt.value:''),l,jc); }
+  bindJobCascade();
   s('lb-tend',t.tend);s('lb-vexp',t.vexp);
   s('lb-status',t.status);s('lb-adjp',t.adjp);s('lb-adhm',t.adhm);
   var cs=document.getElementById('f-status'); if(cs){ var cur=cs.value; cs.innerHTML=currentStatusOptionsHTML(l,cur); }
@@ -403,8 +492,10 @@ function relabelDynamicRows(){
   const t=T[currentLang]||T.ja;
   document.querySelectorAll('#career-rows .career-drow').forEach(row=>{
     const labels=row.querySelectorAll('label');
-    const txt=[t.cfrom,t.cfromm,t.cto,t.ctom,t.ccomp,t.cstat];
+    const txt=[t.cfrom,t.cto,t.ccomp,t.cfield,t.cstat];
     labels.forEach((lb,i)=>{ if(txt[i]!==undefined) lb.textContent=txt[i]; });
+    const fsel=row.querySelector('select.career-field');
+    if(fsel){ const cur=fsel.value; fsel.innerHTML=bilingualOptions(SSW_FIELDS,currentLang,cur,t.cstatPlaceholder); }
     const sel=row.querySelector('select.career-stat');
     if(sel){ const cur=sel.value; sel.innerHTML=residenceOptionsHTML(currentLang,cur); }
   });
@@ -508,14 +599,14 @@ function addCareer(){
   const id=++careerCnt;
   const d=document.createElement('div');
   d.className='drow career-drow';d.id=`cr-${id}`;
-  d.innerHTML=`<div><label>${t.cfrom}</label><input type="number" class="c-fy" placeholder="2022"></div>`+
-    `<div><label>${t.cfromm}</label><input type="number" class="c-fm" min="1" max="12" placeholder="4"></div>`+
-    `<div><label>${t.cto}</label><input type="number" class="c-ty" placeholder="2025"></div>`+
-    `<div><label>${t.ctom}</label><input type="number" class="c-tm" min="1" max="12" placeholder="3"></div>`+
+  d.innerHTML=`<div><label>${t.cfrom}</label><input type="text" class="c-from" inputmode="numeric" placeholder="2019/04"></div>`+
+    `<div><label>${t.cto}</label><input type="text" class="c-to" inputmode="numeric" placeholder="2022/03"></div>`+
     `<div><label>${t.ccomp}</label><input type="text" class="c-comp"></div>`+
+    `<div><label>${t.cfield}</label><select class="career-field">${bilingualOptions(SSW_FIELDS,currentLang,'',t.cstatPlaceholder)}</select></div>`+
     `<div><label>${t.cstat}</label><select class="career-stat">${residenceOptionsHTML(currentLang,'')}</select></div>`+
     `<button class="del-btn" onclick="document.getElementById('cr-${id}').remove()">×</button>`;
   document.getElementById('career-rows').appendChild(d);
+  attachDateAuto(d.querySelector('.c-from')); attachDateAuto(d.querySelector('.c-to'));
 }
 function addFamily(){
   const t=T[currentLang]||T.ja;
@@ -536,12 +627,12 @@ function collectData(){
   const v=id=>document.getElementById(id)?.value||'';
   const careers=[];
   document.querySelectorAll('#career-rows .career-drow').forEach(row=>{
+    var fp=parseCareerDate(row.querySelector('.c-from')?.value||'');
+    var tp=parseCareerDate(row.querySelector('.c-to')?.value||'');
     careers.push({
-      fy:row.querySelector('.c-fy')?.value||'',
-      fm:row.querySelector('.c-fm')?.value||'',
-      ty:row.querySelector('.c-ty')?.value||'',
-      tm:row.querySelector('.c-tm')?.value||'',
+      fy:fp.y, fm:fp.m, fd:fp.d, ty:tp.y, tm:tp.m, td:tp.d,
       comp:row.querySelector('.c-comp')?.value||'',
+      fieldKey:row.querySelector('.career-field')?.value||'',
       statKey:row.querySelector('.career-stat')?.value||''
     });
   });
@@ -554,7 +645,7 @@ function collectData(){
       job:row.querySelector('.f-job')?.value||''
     });
   });
-  return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:v('f-jtype'),jwork:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:currentStatusJa(v('f-status')),statusKey:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
+  return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:jobJa(v('f-jtype')),jtypeKey:v('f-jtype'),jwork:workJa(v('f-jtype'),v('f-jwork')),jworkKey:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:currentStatusJa(v('f-status')),statusKey:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
 }
 
 /* ---- ⑤⑥ 日本語化 ---------------------------------------------------------
@@ -565,7 +656,7 @@ function collectData(){
  *   3) いずれも失敗したら原文のまま（PDFフローは必ず完了）
  * すでに日本語の入力（住所・会社名など）と氏名は翻訳対象から除外して壊さない。 */
 // 現在の在留資格はプルダウンで日本語確定のため翻訳対象外
-const FREE_TEXT_KEYS=['nat','lang','jtype','jwork','adjp','adhm','lic','ill','hob'];
+const FREE_TEXT_KEYS=['nat','lang','adjp','adhm','lic','ill','hob'];
 function hasJP(s){ return /[぀-ヿ㐀-鿿]/.test(String(s||'')); }
 /* 内蔵翻訳辞書（通信なし）: 国籍・言語・続柄・病気・職種など「決まった語」を確実に日本語化。
  * 要件⑥に従い、ブラウザから外部翻訳APIは呼ばない。ここに無い自由記述は
@@ -613,7 +704,7 @@ const DICT={
 function dictJa(s){ if(!s) return null; var k=String(s).toLowerCase().trim().replace(/\s+/g,' ').replace(/[.,。、･・･]+$/,''); return DICT[k]||null; }
 
 async function translateFields(data, fromLang){
-  data.careers=data.careers.map(function(c){ return {...c, statJa:residenceJa(c.statKey)}; });
+  data.careers=data.careers.map(function(c){ return {...c, statJa:residenceJa(c.statKey), fieldJa:sswFieldJa(c.fieldKey)}; });
   data._translateNote='';
   if(fromLang==='ja') return data;                       // 日本語入力はそのまま
 
@@ -688,7 +779,7 @@ function buildPayload(data){
     basic:{
       name:data.name, kana:data.kana, gender:data.gender, birth:toISO(data.dob),
       nationality:data.nat, languages:data.lang, spouse:data.spouse,
-      trainingType:data.jtype, trainingWork:data.jwork,
+      trainingType:data.jtype, trainingTypeKey:data.jtypeKey||'', trainingWork:data.jwork, trainingWorkKey:data.jworkKey||'',
       trainingEnd:toISO(data.tend), visaExpiry:toISO(data.vexp),
       residenceStatus:data.status, residenceStatusKey:data.statusKey||'', addressJapan:data.adjp, addressHome:data.adhm,
       qualifications:data.lic,
@@ -697,8 +788,9 @@ function buildPayload(data){
       drinking:data.drink, smoking:data.smoke
     },
     careers:data.careers.filter(c=>c.comp||c.fy||c.statJa).map(c=>({
-      startYear:c.fy, startMonth:c.fm, endYear:c.ty, endMonth:c.tm,
-      company:c.comp, residenceStatusKey:c.statKey, residenceStatus:c.statJa||''
+      startYear:c.fy, startMonth:c.fm, startDay:c.fd||'', endYear:c.ty, endMonth:c.tm, endDay:c.td||'',
+      company:c.comp, sswFieldKey:c.fieldKey||'', sswField:c.fieldJa||'',
+      residenceStatusKey:c.statKey, residenceStatus:c.statJa||''
     })),
     families:data.families.filter(f=>f.name||f.rel).map(f=>({
       relation:f.rel, name:f.name, birthYear:f.age, job:f.job
@@ -712,20 +804,20 @@ function encodePayload(payload){
 
 /* ---- ⑦ PDFテンプレート（⑨職歴・当時の在留資格・学歴なし） --------------- */
 function buildResumeHTML(data){
-  const cRows=data.careers.filter(c=>c.comp||c.fy).map(c=>`<tr><td style="text-align:center;">${c.fy}</td><td style="text-align:center;">${c.fm}</td><td style="text-align:center;">${c.ty}</td><td style="text-align:center;">${c.tm}</td><td>${c.comp}</td><td style="text-align:center;">${c.statJa||''}</td></tr>`).join('')||'<tr><td colspan="6" style="height:26px;"></td></tr>';
+  const cRows=data.careers.filter(c=>c.comp||c.fy).map(c=>`<tr><td style="text-align:center;">${fmtYM(c.fy,c.fm,c.fd)}</td><td style="text-align:center;">${fmtYM(c.ty,c.tm,c.td)}</td><td colspan="2">${c.comp}</td><td style="text-align:center;">${c.fieldJa||''}</td><td style="text-align:center;">${c.statJa||''}</td></tr>`).join('')||'<tr><td colspan="6" style="height:26px;"></td></tr>';
   const fRows=data.families.filter(f=>f.name||f.rel).map(f=>`<tr><td style="text-align:center;">${f.rel}</td><td>${f.name}</td><td style="text-align:center;">${f.age?f.age+'年':''}</td><td>${f.job}</td></tr>`).join('')||'<tr><td colspan="4" style="height:26px;"></td></tr>';
   const photo=data.photo?`<img src="${data.photo}" style="width:90px;height:114px;object-fit:cover;border:1px solid #cbd5e1;">`:`<div style="width:90px;height:114px;border:1px solid #cbd5e1;display:flex;align-items:center;justify-content:center;font-size:11px;color:#94a3b8;font-family:sans-serif;">写真</div>`;
   const vis=data.vis?data.vis.split('/'):['',''];
   const cLen=Math.max(data.careers.filter(c=>c.comp||c.fy).length,1);
   const fLen=Math.max(data.families.filter(f=>f.name||f.rel).length,1);
   const payloadB64=encodePayload(buildPayload(data));
-  return`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${data.name||'履歴書'} 履歴書</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}html,body{background:#e9eef4}body{font-family:'Noto Sans JP',sans-serif;color:#0f172a;-webkit-font-smoothing:antialiased;padding:14px 10px 40px}.bar{max-width:210mm;margin:0 auto 12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}.bar button{background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(30,58,95,.25)}.bar button:active{background:#2d5580}.bar span{font-size:11px;color:#64748b}.viewport{width:100%;overflow:hidden}.page{width:210mm;min-height:297mm;background:#fff;margin:0 auto;padding:14mm;border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.14)}.rhead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;margin-bottom:14px}.rtitle h1{font-size:21px;font-weight:700;letter-spacing:.24em;color:#1e3a5f;line-height:1.3}.rtitle p{font-size:9px;letter-spacing:.16em;color:#94a3b8;margin-top:6px}.rphoto img,.rphoto>div{border-radius:6px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:7px 8px;vertical-align:middle;font-size:11.5px;line-height:1.55}.lc{background:#eef2f7;font-weight:700;font-size:10.5px;white-space:nowrap;text-align:center;color:#334155}.nb{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;background:#1e3a5f;color:#fff;border-radius:50%;font-size:8px;margin-right:3px;font-weight:700}.rireki-data{color:#fff;font-size:4px;line-height:1.1;word-break:break-all;user-select:all;margin-top:6px}.howto{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.howto-box{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:22px;max-height:88vh;overflow:auto}.howto-box h3{color:#1e3a5f;font-size:17px;margin-bottom:8px}.howto-box p{font-size:12.5px;color:#475569;margin-bottom:14px;line-height:1.6}.howto-box .primary{width:100%;background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:13px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;line-height:1.4}.howto-steps{background:#f1f5f9;border-radius:10px;padding:14px;font-size:12.5px;color:#334155;line-height:1.7}.howto-steps ol{margin:6px 0 12px 18px}.howto-steps b{color:#1e3a5f}.howto-close{width:100%;background:none;border:none;color:#94a3b8;font-size:13px;margin-top:12px;cursor:pointer;font-family:inherit}@media print{html,body{background:#fff}body{padding:0}.bar,.howto{display:none!important}.viewport{overflow:visible;height:auto!important}.page{width:auto;min-height:0;margin:0;padding:0;border-radius:0;box-shadow:none;transform:none!important}@page{size:A4 portrait;margin:12mm}}</style></head><body><div class="bar"><button onclick="document.getElementById('howto').style.display='flex'">📄 PDFに保存 / 印刷</button><span>スマホは全体表示・PDFはA4で保存されます</span></div><div class="howto no-print" id="howto"><div class="howto-box"><h3>📄 PDFで保存する方法</h3><p>ご利用の環境に合わせてお選びください。Messenger・LINEなどのアプリ内で開いている場合は、下の手順で保存してください。</p><button class="primary" onclick="try{window.print()}catch(e){}">🖨 印刷／PDF保存ダイアログを開く<br><small style="font-weight:400;opacity:.85">Safari・Chrome・パソコン向け</small></button><div class="howto-steps"><b>iPhone（アプリ内ブラウザ）</b><ol><li>画面下の「共有」ボタン（□に↑）を押す</li><li>「プリント」を選ぶ</li><li>プレビューを2本指で外側に広げる</li><li>右上の「共有」→「ファイルに保存」</li></ol><b>Android</b><ol><li>メニュー（⋮）→「共有」または「印刷」</li><li>送信先で「PDF形式で保存」を選ぶ</li></ol>うまくいかない場合は、メニューから<b>「Safari／Chromeで開く」</b>後に同じ操作をしてください。</div><button class="howto-close" onclick="document.getElementById('howto').style.display='none'">閉じる</button></div></div><div class="viewport"><div class="page"><header class="rhead"><div class="rtitle"><h1>特定技能外国人の履歴書</h1><p>SPECIFIED SKILLED WORKER · RESUME</p></div><div class="rphoto">${photo}</div></header><table><tr><td class="lc" rowspan="2" style="width:52px;"><span class="nb">①</span>氏名</td><td class="lc" style="width:56px;">フリガナ</td><td colspan="2">${data.kana}</td><td class="lc" style="width:64px;"><span class="nb">②</span>性別</td><td colspan="2">${data.gender}</td></tr><tr><td class="lc">英字</td><td colspan="2">${data.name}</td><td class="lc"><span class="nb">③</span>生年月日</td><td colspan="2">${fmtDate(data.dob)}</td></tr><tr><td class="lc" colspan="2"><span class="nb">④</span>国籍・地域</td><td>${data.nat}</td><td class="lc"><span class="nb">⑤</span>十分に理解できる言語</td><td>${data.lang}</td><td class="lc"><span class="nb">⑥</span>配偶者の有無</td><td style="text-align:center;">${data.spouse}</td></tr><tr><td class="lc" colspan="2"><span class="nb">⑦</span>実習の職種</td><td colspan="2">${data.jtype}</td><td class="lc"><span class="nb">⑧</span>実習の作業名</td><td colspan="2">${data.jwork}</td></tr><tr><td class="lc" colspan="2">実習修了日</td><td colspan="2">${fmtDate(data.tend)}</td><td class="lc">ビザの期限</td><td colspan="2">${fmtDate(data.vexp)}</td></tr><tr><td class="lc" colspan="2">現在の在留資格</td><td colspan="5">${data.status}</td></tr><tr><td class="lc" colspan="2">日本での現在住居地</td><td colspan="5">${data.adjp}</td></tr><tr><td class="lc" colspan="2">本国の住居地</td><td colspan="5">${data.adhm}</td></tr><tr><td class="lc" rowspan="${cLen+2}"><span class="nb">⑨</span>職歴</td><th class="lc">年</th><th class="lc">月</th><th class="lc">年</th><th class="lc">月</th><th class="lc">会社名</th><th class="lc">当時の在留資格</th></tr>${cRows}<tr><td colspan="6" style="height:20px;"></td></tr><tr><td class="lc" colspan="2"><span class="nb">⑩</span>資格・免許</td><td colspan="5" style="white-space:pre-wrap;min-height:40px;">${data.lic||'　－ 専門級、技能実習終了証明書'}</td></tr><tr><td class="lc" rowspan="5">体の状態</td><td class="lc">身長</td><td>${data.ht} cm</td><td class="lc" rowspan="5">その他</td><td class="lc">利き手</td><td colspan="2">${data.hand}</td></tr><tr><td class="lc">体重</td><td>${data.wt} kg</td><td class="lc">趣味</td><td colspan="2">${data.hob}</td></tr><tr><td class="lc">血液型</td><td>${data.bl}</td><td class="lc">飲酒</td><td colspan="2">${data.drink}</td></tr><tr><td class="lc">病気</td><td>${data.ill}</td><td class="lc">タバコ</td><td colspan="2">${data.smoke}</td></tr><tr><td class="lc">視力</td><td>右:${(vis[0]||'').trim()} 左:${(vis[1]||'').trim()}</td><td colspan="3"></td></tr><tr><td class="lc" rowspan="${fLen+2}">家族構成</td><th class="lc">続柄</th><th class="lc" colspan="2">氏名</th><th class="lc">年齢</th><th class="lc" colspan="2">仕事</th></tr>${fRows}<tr><td colspan="6" style="height:20px;"></td></tr></table><div class="rireki-data">@@RIREKI_JSON_V1@@${payloadB64}@@END@@</div></div></div><script>function fit(){var p=document.querySelector('.page'),w=document.querySelector('.viewport');if(!p||!w)return;p.style.transform='';p.style.transformOrigin='top left';w.style.height='';var avail=w.clientWidth,pw=p.offsetWidth;if(avail<pw-1){var s=avail/pw;p.style.transform='scale('+s+')';w.style.height=(p.offsetHeight*s)+'px';}}window.addEventListener('load',fit);window.addEventListener('resize',fit);<\/script></body></html>`;
+  return`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${data.name||'履歴書'} 履歴書</title><link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box;margin:0;padding:0}html,body{background:#e9eef4}body{font-family:'Noto Sans JP',sans-serif;color:#0f172a;-webkit-font-smoothing:antialiased;padding:14px 10px 40px}.bar{max-width:210mm;margin:0 auto 12px;display:flex;flex-wrap:wrap;align-items:center;gap:10px}.bar button{background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:12px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 12px rgba(30,58,95,.25)}.bar button:active{background:#2d5580}.bar span{font-size:11px;color:#64748b}.viewport{width:100%;overflow:hidden}.page{width:210mm;min-height:297mm;background:#fff;margin:0 auto;padding:14mm;border-radius:14px;box-shadow:0 12px 40px rgba(15,23,42,.14)}.rhead{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;border-bottom:3px solid #1e3a5f;padding-bottom:12px;margin-bottom:14px}.rtitle h1{font-size:21px;font-weight:700;letter-spacing:.24em;color:#1e3a5f;line-height:1.3}.rtitle p{font-size:9px;letter-spacing:.16em;color:#94a3b8;margin-top:6px}.rphoto img,.rphoto>div{border-radius:6px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:7px 8px;vertical-align:middle;font-size:11.5px;line-height:1.55}.lc{background:#eef2f7;font-weight:700;font-size:10.5px;white-space:nowrap;text-align:center;color:#334155}.nb{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;background:#1e3a5f;color:#fff;border-radius:50%;font-size:8px;margin-right:3px;font-weight:700}.rireki-data{color:#fff;font-size:4px;line-height:1.1;word-break:break-all;user-select:all;margin-top:6px}.howto{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50}.howto-box{background:#fff;border-radius:16px;max-width:420px;width:100%;padding:22px;max-height:88vh;overflow:auto}.howto-box h3{color:#1e3a5f;font-size:17px;margin-bottom:8px}.howto-box p{font-size:12.5px;color:#475569;margin-bottom:14px;line-height:1.6}.howto-box .primary{width:100%;background:#1e3a5f;color:#fff;border:none;border-radius:10px;padding:13px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;line-height:1.4}.howto-steps{background:#f1f5f9;border-radius:10px;padding:14px;font-size:12.5px;color:#334155;line-height:1.7}.howto-steps ol{margin:6px 0 12px 18px}.howto-steps b{color:#1e3a5f}.howto-close{width:100%;background:none;border:none;color:#94a3b8;font-size:13px;margin-top:12px;cursor:pointer;font-family:inherit}@media print{html,body{background:#fff}body{padding:0}.bar,.howto{display:none!important}.viewport{overflow:visible;height:auto!important}.page{width:auto;min-height:0;margin:0;padding:0;border-radius:0;box-shadow:none;transform:none!important}@page{size:A4 portrait;margin:12mm}}</style></head><body><div class="bar"><button onclick="document.getElementById('howto').style.display='flex'">📄 PDFに保存 / 印刷</button><span>スマホは全体表示・PDFはA4で保存されます</span></div><div class="howto no-print" id="howto"><div class="howto-box"><h3>📄 PDFで保存する方法</h3><p>ご利用の環境に合わせてお選びください。Messenger・LINEなどのアプリ内で開いている場合は、下の手順で保存してください。</p><button class="primary" onclick="try{window.print()}catch(e){}">🖨 印刷／PDF保存ダイアログを開く<br><small style="font-weight:400;opacity:.85">Safari・Chrome・パソコン向け</small></button><div class="howto-steps"><b>iPhone（アプリ内ブラウザ）</b><ol><li>画面下の「共有」ボタン（□に↑）を押す</li><li>「プリント」を選ぶ</li><li>プレビューを2本指で外側に広げる</li><li>右上の「共有」→「ファイルに保存」</li></ol><b>Android</b><ol><li>メニュー（⋮）→「共有」または「印刷」</li><li>送信先で「PDF形式で保存」を選ぶ</li></ol>うまくいかない場合は、メニューから<b>「Safari／Chromeで開く」</b>後に同じ操作をしてください。</div><button class="howto-close" onclick="document.getElementById('howto').style.display='none'">閉じる</button></div></div><div class="viewport"><div class="page"><header class="rhead"><div class="rtitle"><h1>特定技能外国人の履歴書</h1><p>SPECIFIED SKILLED WORKER · RESUME</p></div><div class="rphoto">${photo}</div></header><table><tr><td class="lc" rowspan="2" style="width:52px;"><span class="nb">①</span>氏名</td><td class="lc" style="width:56px;">フリガナ</td><td colspan="2">${data.kana}</td><td class="lc" style="width:64px;"><span class="nb">②</span>性別</td><td colspan="2">${data.gender}</td></tr><tr><td class="lc">英字</td><td colspan="2">${data.name}</td><td class="lc"><span class="nb">③</span>生年月日</td><td colspan="2">${fmtDate(data.dob)}</td></tr><tr><td class="lc" colspan="2"><span class="nb">④</span>国籍・地域</td><td>${data.nat}</td><td class="lc"><span class="nb">⑤</span>十分に理解できる言語</td><td>${data.lang}</td><td class="lc"><span class="nb">⑥</span>配偶者の有無</td><td style="text-align:center;">${data.spouse}</td></tr><tr><td class="lc" colspan="2"><span class="nb">⑦</span>実習の職種</td><td colspan="2">${data.jtype}</td><td class="lc"><span class="nb">⑧</span>実習の作業名</td><td colspan="2">${data.jwork}</td></tr><tr><td class="lc" colspan="2">実習修了日</td><td colspan="2">${fmtDate(data.tend)}</td><td class="lc">ビザの期限</td><td colspan="2">${fmtDate(data.vexp)}</td></tr><tr><td class="lc" colspan="2">現在の在留資格</td><td colspan="5">${data.status}</td></tr><tr><td class="lc" colspan="2">日本での現在住居地</td><td colspan="5">${data.adjp}</td></tr><tr><td class="lc" colspan="2">本国の住居地</td><td colspan="5">${data.adhm}</td></tr><tr><td class="lc" rowspan="${cLen+2}"><span class="nb">⑨</span>職歴</td><th class="lc">開始</th><th class="lc">終了</th><th class="lc" colspan="2">会社名</th><th class="lc">特定技能分野</th><th class="lc">当時の在留資格</th></tr>${cRows}<tr><td colspan="6" style="height:20px;"></td></tr><tr><td class="lc" colspan="2"><span class="nb">⑩</span>資格・免許</td><td colspan="5" style="white-space:pre-wrap;min-height:40px;">${data.lic||'　－ 専門級、技能実習終了証明書'}</td></tr><tr><td class="lc" rowspan="5">体の状態</td><td class="lc">身長</td><td>${data.ht} cm</td><td class="lc" rowspan="5">その他</td><td class="lc">利き手</td><td colspan="2">${data.hand}</td></tr><tr><td class="lc">体重</td><td>${data.wt} kg</td><td class="lc">趣味</td><td colspan="2">${data.hob}</td></tr><tr><td class="lc">血液型</td><td>${data.bl}</td><td class="lc">飲酒</td><td colspan="2">${data.drink}</td></tr><tr><td class="lc">病気</td><td>${data.ill}</td><td class="lc">タバコ</td><td colspan="2">${data.smoke}</td></tr><tr><td class="lc">視力</td><td>右:${(vis[0]||'').trim()} 左:${(vis[1]||'').trim()}</td><td colspan="3"></td></tr><tr><td class="lc" rowspan="${fLen+2}">家族構成</td><th class="lc">続柄</th><th class="lc" colspan="2">氏名</th><th class="lc">年齢</th><th class="lc" colspan="2">仕事</th></tr>${fRows}<tr><td colspan="6" style="height:20px;"></td></tr></table><div class="rireki-data">@@RIREKI_JSON_V1@@${payloadB64}@@END@@</div></div></div><script>function fit(){var p=document.querySelector('.page'),w=document.querySelector('.viewport');if(!p||!w)return;p.style.transform='';p.style.transformOrigin='top left';w.style.height='';var avail=w.clientWidth,pw=p.offsetWidth;if(avail<pw-1){var s=avail/pw;p.style.transform='scale('+s+')';w.style.height=(p.offsetHeight*s)+'px';}}window.addEventListener('load',fit);window.addEventListener('resize',fit);<\/script></body></html>`;
 }
 
 /* ---- プレビュー・翻訳・PDF ----------------------------------------------- */
 function previewDirect(){
   const data=collectData();
-  data.careers=data.careers.map(c=>({...c, statJa:residenceJa(c.statKey)}));
+  data.careers=data.careers.map(c=>({...c, statJa:residenceJa(c.statKey), fieldJa:sswFieldJa(c.fieldKey)}));
   pendingHtml=buildResumeHTML(data);
   showModal(data);
 }
@@ -743,7 +835,7 @@ async function translateAndShowPDF(){
     // 想定外の例外でもフローを止めない：翻訳なしのデータでPDFを出す
     overlay.classList.remove('show');
     const fallback=collectData();
-    fallback.careers=fallback.careers.map(c=>({...c, statJa:residenceJa(c.statKey)}));
+    fallback.careers=fallback.careers.map(c=>({...c, statJa:residenceJa(c.statKey), fieldJa:sswFieldJa(c.fieldKey)}));
     pendingHtml=buildResumeHTML(fallback);
     showModal(fallback);
   }
