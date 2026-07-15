@@ -194,7 +194,7 @@ body.force-pc{min-width:900px;}
           </div>
           <div class="fg c2">
             <div class="field"><label id="lb-name">① 氏名（英字）</label><input type="text" id="f-name" placeholder="VUONG VAN THANH"></div>
-            <div class="field"><label id="lb-dob">③ 生年月日</label><input type="date" id="f-dob"></div>
+            <div class="field"><label id="lb-dob">③ 生年月日</label><input type="text" id="f-dob" inputmode="numeric" placeholder="1995/03/01" autocomplete="off"></div>
           </div>
         </div>
       </div>
@@ -210,8 +210,8 @@ body.force-pc{min-width:900px;}
         <div class="field"><label id="lb-jwork">⑧ 実習の作業名</label><input type="text" id="f-jwork"></div>
       </div>
       <div class="fg c2" style="margin-top:12px;">
-        <div class="field"><label id="lb-tend">実習修了日</label><input type="date" id="f-tend"></div>
-        <div class="field"><label id="lb-vexp">ビザの期限</label><input type="date" id="f-vexp"></div>
+        <div class="field"><label id="lb-tend">実習修了日</label><input type="text" id="f-tend" inputmode="numeric" placeholder="2022/03/31" autocomplete="off"></div>
+        <div class="field"><label id="lb-vexp">ビザの期限</label><input type="text" id="f-vexp" inputmode="numeric" placeholder="2027/04/01" autocomplete="off"></div>
       </div>
       <div class="fg c2" style="margin-top:12px;">
         <div class="field"><label id="lb-status">現在の在留資格</label><input type="text" id="f-status"></div>
@@ -446,6 +446,19 @@ function setView(mode){
   }catch(e){}
 })();
 
+/* ---- 日付は直接入力。8桁(YYYYMMDD)を打つと入力後に自動でスラッシュ整形 ---- */
+(function dateInputs(){
+  function attach(id){
+    var el=document.getElementById(id); if(!el) return;
+    // 入力途中は再整形せず、確定時(blur)に8桁なら YYYY/MM/DD へ整形
+    el.addEventListener('blur',function(){
+      var v=el.value.replace(/[^\d]/g,'');
+      if(v.length===8) el.value=v.slice(0,4)+'/'+v.slice(4,6)+'/'+v.slice(6);
+    });
+  }
+  ['f-dob','f-tend','f-vexp'].forEach(attach);
+})();
+
 /* ---- 写真 ---------------------------------------------------------------- */
 function prevPhoto(e){
   const file=e.target.files[0];if(!file)return;
@@ -559,7 +572,10 @@ async function translateFields(data, fromLang){
 }
 
 /* ---- 日付整形 ------------------------------------------------------------ */
-function fmtDate(s){if(!s)return'';const d=new Date(s);if(isNaN(d))return s;return`${d.getFullYear()}年 ${d.getMonth()+1}月 ${d.getDate()}日`;}
+// 直接入力（1995/03/01・1995-3-1・19950301 等）を許容し、履歴書表記へ整形
+function fmtDate(s){if(!s)return'';s=String(s).trim();let m=s.match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})/)||s.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return`${+m[1]}年 ${+m[2]}月 ${+m[3]}日`;m=s.match(/^(\d{4})\D+(\d{1,2})$/)||s.match(/^(\d{4})(\d{2})$/);if(m)return`${+m[1]}年 ${+m[2]}月`;return s;}
+// 埋め込みJSON用にYYYY-MM-DDへ正規化（管理システムの取り込み用）
+function toISO(s){if(!s)return'';s=String(s).trim();const m=s.match(/^(\d{4})\D+(\d{1,2})\D+(\d{1,2})/)||s.match(/^(\d{4})(\d{2})(\d{2})$/);if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);return s;}
 
 /* ---- ⑩⑪⑫ 共通データフォーマット（PDFへ埋め込む機械可読ペイロード） ------
  * PDFテキスト層に見えない白文字で埋め込む。外国人管理システムはこれを読み取る。
@@ -572,10 +588,10 @@ function buildPayload(data){
     generatedAt:new Date().toISOString(),
     sourceLang:currentLang,
     basic:{
-      name:data.name, kana:data.kana, gender:data.gender, birth:data.dob,
+      name:data.name, kana:data.kana, gender:data.gender, birth:toISO(data.dob),
       nationality:data.nat, languages:data.lang, spouse:data.spouse,
       trainingType:data.jtype, trainingWork:data.jwork,
-      trainingEnd:data.tend, visaExpiry:data.vexp,
+      trainingEnd:toISO(data.tend), visaExpiry:toISO(data.vexp),
       residenceStatus:data.status, addressJapan:data.adjp, addressHome:data.adhm,
       qualifications:data.lic,
       height:data.ht, weight:data.wt, bloodType:data.bl, illness:data.ill,
