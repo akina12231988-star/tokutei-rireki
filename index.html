@@ -214,7 +214,7 @@ body.force-pc{min-width:900px;}
         <div class="field"><label id="lb-vexp">ビザの期限</label><input type="text" id="f-vexp" inputmode="numeric" placeholder="2027/04/01" autocomplete="off"></div>
       </div>
       <div class="fg c2" style="margin-top:12px;">
-        <div class="field"><label id="lb-status">現在の在留資格</label><input type="text" id="f-status"></div>
+        <div class="field"><label id="lb-status">現在の在留資格</label><select id="f-status"></select></div>
         <div class="field"><label id="lb-adjp">日本での住居地</label><input type="text" id="f-adjp"></div>
       </div>
       <div class="field" style="margin-top:12px;"><label id="lb-adhm">本国の住居地</label><input type="text" id="f-adhm"></div>
@@ -332,6 +332,35 @@ function residenceOptionsHTML(lang, selectedKey){
 }
 function residenceJa(key){ return key && RESIDENCE_BY_KEY[key] ? RESIDENCE_BY_KEY[key].ja : ''; }
 
+/* ---- 現在の在留資格（法務省の在留資格）。特定技能1号への移行可能性が高い順 ----
+ * 表示は「日本語 ＋ 各国語」併記。PDF・埋め込みJSONは日本語を使用。 */
+const CURRENT_STATUS=[
+  {key:'cur_tokutei_1', ja:'特定技能1号', id:'Pekerja Berketerampilan Khusus Tingkat 1', vi:'Kỹ năng đặc định số 1', km:'ជំនាញជាក់លាក់លេខ ១', tl:'Espesyal na Bihasang Manggagawa Blg. 1', en:'Specified Skilled Worker (i)'},
+  {key:'cur_jisshu_2', ja:'技能実習2号', id:'Magang Teknis Tingkat 2', vi:'Thực tập kỹ năng số 2', km:'កម្មសិក្សាជំនាញលេខ ២', tl:'Technical Intern Training Blg. 2', en:'Technical Intern Training (ii)'},
+  {key:'cur_jisshu_3', ja:'技能実習3号', id:'Magang Teknis Tingkat 3', vi:'Thực tập kỹ năng số 3', km:'កម្មសិក្សាជំនាញលេខ ៣', tl:'Technical Intern Training Blg. 3', en:'Technical Intern Training (iii)'},
+  {key:'cur_tokkatsu_ikou', ja:'特定活動（特定技能1号移行準備）', id:'Kegiatan Khusus (persiapan transisi ke SSW Tingkat 1)', vi:'Hoạt động đặc định (chuẩn bị chuyển sang Kỹ năng đặc định số 1)', km:'សកម្មភាពជាក់លាក់ (រៀបចំផ្លាស់ប្តូរទៅជំនាញជាក់លាក់លេខ ១)', tl:'Natatanging Gawain (paghahanda sa paglipat sa SSW Blg. 1)', en:'Designated Activities (preparing to transfer to SSW (i))'},
+  {key:'cur_tokkatsu_work', ja:'特定活動（就労可）', id:'Kegiatan Khusus (boleh bekerja)', vi:'Hoạt động đặc định (được phép làm việc)', km:'សកម្មភាពជាក់លាក់ (អនុញ្ញាតឱ្យធ្វើការ)', tl:'Natatanging Gawain (pinapayagang magtrabaho)', en:'Designated Activities (work permitted)'},
+  {key:'cur_ryugaku', ja:'留学', id:'Pelajar (Ryugaku)', vi:'Du học', km:'និស្សិត', tl:'Estudyante (Ryugaku)', en:'Student'},
+  {key:'cur_jisshu_1', ja:'技能実習1号', id:'Magang Teknis Tingkat 1', vi:'Thực tập kỹ năng số 1', km:'កម្មសិក្សាជំនាញលេខ ១', tl:'Technical Intern Training Blg. 1', en:'Technical Intern Training (i)'},
+  {key:'cur_tokutei_2', ja:'特定技能2号', id:'Pekerja Berketerampilan Khusus Tingkat 2', vi:'Kỹ năng đặc định số 2', km:'ជំនាញជាក់លាក់លេខ ២', tl:'Espesyal na Bihasang Manggagawa Blg. 2', en:'Specified Skilled Worker (ii)'},
+  {key:'cur_gijinkoku', ja:'技術・人文知識・国際業務', id:'Insinyur / Humaniora / Layanan Internasional', vi:'Kỹ thuật · Tri thức nhân văn · Nghiệp vụ quốc tế', km:'បច្ចេកទេស · មនុស្សសាស្ត្រ · សេវាកម្មអន្តរជាតិ', tl:'Engineer / Humanities / Intl Services', en:'Engineer / Specialist in Humanities / Intl Services'},
+  {key:'cur_kazoku', ja:'家族滞在', id:'Tinggal Keluarga (Dependen)', vi:'Lưu trú gia đình (phụ thuộc)', km:'ការស្នាក់នៅជាមួយគ្រួសារ', tl:'Dependent (Pamilya)', en:'Dependent'},
+  {key:'cur_tanki', ja:'短期滞在', id:'Kunjungan Sementara', vi:'Lưu trú ngắn hạn', km:'ការស្នាក់នៅរយៈពេលខ្លី', tl:'Panandaliang Pananatili', en:'Temporary Visitor'},
+  {key:'cur_other', ja:'その他', id:'Lainnya', vi:'Khác', km:'ផ្សេងៗ', tl:'Iba pa', en:'Other'}
+];
+const CURRENT_BY_KEY=Object.fromEntries(CURRENT_STATUS.map(function(r){return [r.key,r];}));
+// オプション表示は「日本語 ／ 各国語」併記（日本語のときは日本語のみ）
+function currentStatusOptionsHTML(lang, key){
+  var t=T[lang]||T.ja, h='<option value="">'+t.cstatPlaceholder+'</option>';
+  for(var i=0;i<CURRENT_STATUS.length;i++){
+    var r=CURRENT_STATUS[i];
+    var label=(lang==='ja')?r.ja:(r.ja+' ／ '+(r[lang]||r.ja));
+    h+='<option value="'+r.key+'"'+(r.key===key?' selected':'')+'>'+label+'</option>';
+  }
+  return h;
+}
+function currentStatusJa(key){ return key&&CURRENT_BY_KEY[key]?CURRENT_BY_KEY[key].ja:''; }
+
 /* ---- 状態 ---------------------------------------------------------------- */
 let currentLang='ja', photoDataUrl='', careerCnt=0, familyCnt=0;
 let pendingHtml='', pendingPayload=null, translateWarned=false;
@@ -358,6 +387,7 @@ function applyT(l){
   s('lb-jtype',t.jtype);s('lb-jwork',t.jwork);
   s('lb-tend',t.tend);s('lb-vexp',t.vexp);
   s('lb-status',t.status);s('lb-adjp',t.adjp);s('lb-adhm',t.adhm);
+  var cs=document.getElementById('f-status'); if(cs){ var cur=cs.value; cs.innerHTML=currentStatusOptionsHTML(l,cur); }
   s('lb-add-c',t.addC);s('lb-add-f',t.addF);
   s('lb-ht',t.ht);s('lb-wt',t.wt);s('lb-bl',t.bl);
   s('lb-ill',t.ill);s('lb-vis',t.vis);s('lb-hand',t.hand);
@@ -524,7 +554,7 @@ function collectData(){
       job:row.querySelector('.f-job')?.value||''
     });
   });
-  return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:v('f-jtype'),jwork:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
+  return{kana:v('f-kana'),name:v('f-name'),gender:gv('gender'),dob:v('f-dob'),nat:v('f-nat'),lang:v('f-lang'),spouse:gv('spouse'),jtype:v('f-jtype'),jwork:v('f-jwork'),tend:v('f-tend'),vexp:v('f-vexp'),status:currentStatusJa(v('f-status')),statusKey:v('f-status'),adjp:v('f-adjp'),adhm:v('f-adhm'),careers,lic:v('f-lic'),ht:v('f-ht'),wt:v('f-wt'),bl:v('f-bl'),ill:v('f-ill'),vis:v('f-vis'),hand:gv('hand'),hob:v('f-hob'),drink:gv('drink'),smoke:gv('smoke'),families,photo:photoDataUrl};
 }
 
 /* ---- ⑤⑥ 日本語化 ---------------------------------------------------------
@@ -534,10 +564,8 @@ function collectData(){
  *   2) 無ければキー不要の無料翻訳(Google公開エンドポイント)をブラウザから利用
  *   3) いずれも失敗したら原文のまま（PDFフローは必ず完了）
  * すでに日本語の入力（住所・会社名など）と氏名は翻訳対象から除外して壊さない。 */
-const FREE_TEXT_KEYS=['nat','lang','jtype','jwork','status','adjp','adhm','lic','ill','hob'];
-// 現在の在留資格によく入力されるローマ字/略記を日本語へ
-const STATUS_MAP={tokuteiginou1:'特定技能1号',tokuteighino1:'特定技能1号',tokutei1:'特定技能1号',ssw1:'特定技能1号',tokuteiginou2:'特定技能2号',tokuteighino2:'特定技能2号',tokutei2:'特定技能2号',ssw2:'特定技能2号',ginoujisshu:'技能実習',tokuteikatsudou:'特定活動',ryugaku:'留学'};
-function normStatus(s){ if(!s) return null; var k=String(s).toLowerCase().replace(/[\s　・\-号（）()]/g,''); return STATUS_MAP[k]||null; }
+// 現在の在留資格はプルダウンで日本語確定のため翻訳対象外
+const FREE_TEXT_KEYS=['nat','lang','jtype','jwork','adjp','adhm','lic','ill','hob'];
 function hasJP(s){ return /[぀-ヿ㐀-鿿]/.test(String(s||'')); }
 /* 内蔵翻訳辞書（通信なし）: 国籍・言語・続柄・病気・職種など「決まった語」を確実に日本語化。
  * 要件⑥に従い、ブラウザから外部翻訳APIは呼ばない。ここに無い自由記述は
@@ -588,7 +616,6 @@ async function translateFields(data, fromLang){
   data.careers=data.careers.map(function(c){ return {...c, statJa:residenceJa(c.statKey)}; });
   data._translateNote='';
   if(fromLang==='ja') return data;                       // 日本語入力はそのまま
-  var sm=normStatus(data.status); if(sm) data.status=sm; // 在留資格のローマ字入力を補正
 
   // 1) 内蔵辞書で確定変換（通信なし）。すでに日本語の値・氏名は対象外。
   var applyDict=function(get,set){ var t=get(); if(t && !hasJP(t)){ var d=dictJa(t); if(d) set(d); } };
@@ -663,7 +690,7 @@ function buildPayload(data){
       nationality:data.nat, languages:data.lang, spouse:data.spouse,
       trainingType:data.jtype, trainingWork:data.jwork,
       trainingEnd:toISO(data.tend), visaExpiry:toISO(data.vexp),
-      residenceStatus:data.status, addressJapan:data.adjp, addressHome:data.adhm,
+      residenceStatus:data.status, residenceStatusKey:data.statusKey||'', addressJapan:data.adjp, addressHome:data.adhm,
       qualifications:data.lic,
       height:data.ht, weight:data.wt, bloodType:data.bl, illness:data.ill,
       vision:data.vis, dominantHand:data.hand, hobby:data.hob,
